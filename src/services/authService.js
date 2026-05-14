@@ -78,7 +78,14 @@ export const updateEmail = async (newEmail) => {
     { email: newEmail },
     { emailRedirectTo: `${window.location.origin}/owner/profile` }
   )
-  if (error) throw error
+  if (error) {
+    if (error.status === 429) {
+      const e = new Error('Muitas tentativas. Aguarde alguns minutos e tente novamente.')
+      e.isRateLimit = true
+      throw e
+    }
+    throw error
+  }
 }
 
 export const anonymizeAccount = async (userId) => {

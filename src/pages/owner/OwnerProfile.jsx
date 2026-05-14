@@ -144,8 +144,8 @@ export default function OwnerProfile() {
       await updateEmail(trimmed)
       setEmailSent(true)
       setNewEmail('')
-    } catch {
-      toast.error('Erro ao solicitar troca de e-mail. Tente novamente.')
+    } catch (err) {
+      toast.error(err?.message || 'Erro ao solicitar troca de e-mail. Tente novamente.')
     } finally {
       setSavingEmail(false)
     }
