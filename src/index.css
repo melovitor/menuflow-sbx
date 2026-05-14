@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F8F8F8;
+    --bg-tertiary: #F1F1F1;
+    --border: #E2E2E2;
+    --border-strong: #C8C8C8;
+    --text: #111111;
+    --text-2: #555555;
+    --text-3: #999999;
+    --accent: #7C3AED;
+    --accent-light: #EDE9FE;
+    --accent-text: #5B21B6;
+    --green-bg: #ECFDF5;
+    --green-text: #065F46;
+    --green-border: #A7F3D0;
+    --amber-bg: #FFFBEB;
+    --amber-text: #92400E;
+    --amber-border: #FDE68A;
+    --red-bg: #FEF2F2;
+    --red-text: #991B1B;
+    --red-border: #FECACA;
+    --table-free-bg: #EAF3DE;
+    --table-free-border: #C0DD97;
+    --table-free-text: #3B6D11;
+    --table-occupied-bg: #EDE9FE;
+    --table-occupied-border: #AFA9EC;
+    --table-occupied-text: #3C3489;
+    --table-waiting-bg: #FAEEDA;
+    --table-waiting-border: #F0997B;
+    --table-waiting-text: #712B13;
+  }
+
+  .dark {
+    --bg-primary: #18181B;
+    --bg-secondary: #111113;
+    --bg-tertiary: #0A0A0C;
+    --border: #2A2A2E;
+    --border-strong: #3F3F46;
+    --text: #FAFAFA;
+    --text-2: #A1A1AA;
+    --text-3: #555558;
+    --accent: #7C3AED;
+    --accent-light: #1A1030;
+    --accent-text: #A78BFA;
+    --green-bg: #021510;
+    --green-text: #A7F3D0;
+    --green-border: #0D3320;
+    --amber-bg: #1A1200;
+    --amber-text: #FDE68A;
+    --amber-border: #3D2E00;
+    --red-bg: #1A0808;
+    --red-text: #FCA5A5;
+    --red-border: #3D1212;
+    --table-free-bg: #042918;
+    --table-free-border: #0D3320;
+    --table-free-text: #6EE7B7;
+    --table-occupied-bg: #1A1030;
+    --table-occupied-border: #3D2060;
+    --table-occupied-text: #A78BFA;
+    --table-waiting-bg: #1A0D00;
+    --table-waiting-border: #3D2200;
+    --table-waiting-text: #FDBA74;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--bg-secondary);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .tracking-ui {
+    letter-spacing: -0.2px;
+  }
+  .tracking-title {
+    letter-spacing: -0.5px;
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes glow {
+  50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); }
+}
+
+.animate-blink {
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
