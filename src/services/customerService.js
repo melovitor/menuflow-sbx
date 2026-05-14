@@ -10,15 +10,14 @@ export const fetchCustomerByPhone = async (businessId, phone) => {
   return data // null if not found — no error thrown
 }
 
-export const createCustomer = async (businessId, name, phone) => {
+export const createCustomer = async (businessId, name, phone, marketingOptIn = false) => {
   const { data, error } = await supabase
     .from('customers')
-    .insert({ business_id: businessId, name: name.trim(), phone })
+    .insert({ business_id: businessId, name: name.trim(), phone, marketing_opt_in: marketingOptIn })
     .select('id, name, phone')
     .single()
 
   if (error) {
-    // Unique constraint: phone already exists (race condition) → use existing record
     if (error.code === '23505') {
       const existing = await fetchCustomerByPhone(businessId, phone)
       if (existing) return existing

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { IconSearch, IconMoon, IconSun, IconPlus, IconMinus } from '@tabler/icons-react'
+import LgpdFooter from '../../components/layout/LgpdFooter'
 import { fetchBusinessBySlug } from '../../services/businessService'
 import { fetchCategories, fetchAllActiveItems } from '../../services/menuService'
 import { getCustomerSession } from '../../utils/customerSession'
@@ -529,6 +530,7 @@ export default function MenuOrder() {
           )}
         </div>
       )}
+      <LgpdFooter className="border-t border-[var(--border)]" />
     </div>
   )
 }

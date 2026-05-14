@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { IconArrowLeft, IconMoon, IconSun, IconShoppingBag, IconX } from '@tabler/icons-react'
+import LgpdFooter from '../../components/layout/LgpdFooter'
 import { supabase } from '../../services/supabase'
 import { cancelOrder } from '../../services/orderService'
 import { getCustomerSession } from '../../utils/customerSession'
@@ -387,6 +388,7 @@ export default function OrderStatus() {
         </div>
       )}
 
+      <LgpdFooter className="border-t border-[var(--border)]" />
     </div>
   )
 }

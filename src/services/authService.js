@@ -15,11 +15,17 @@ export const signInWithGoogle = async () => {
   return data
 }
 
-export const signUp = async (email, password, name) => {
+export const signUp = async (email, password, name, privacyMeta = {}) => {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { name } },
+    options: {
+      data: {
+        name,
+        privacy_accepted_at: privacyMeta.privacy_accepted_at || null,
+        privacy_version: privacyMeta.privacy_version || '1.0',
+      },
+    },
   })
   if (error) throw error
   return data
@@ -70,6 +76,93 @@ export const updateUserAvatar = async (userId, avatarUrl) => {
 export const updateEmail = async (newEmail) => {
   const { error } = await supabase.auth.updateUser({ email: newEmail })
   if (error) throw error
+}
+
+export const anonymizeAccount = async (userId) => {
+  const { error } = await supabase
+    .from('users')
+    .update({
+      name: 'Usuário Removido',
+      phone: null,
+      avatar_url: null,
+      is_deleted: true,
+      deleted_at: new Date().toISOString(),
+    })
+    .eq('id', userId)
+  if (error) throw error
+
+  await supabase
+    .from('businesses')
+    .update({ is_open: false })
+    .eq('owner_id', userId)
+
+  await supabase.auth.signOut()
+}
+
+export const exportUserData = async (userId, userEmail) => {
+  const [profileRes, businessesRes] = await Promise.all([
+    supabase.from('users').select('name, phone, created_at').eq('id', userId).single(),
+    supabase
+      .from('businesses')
+      .select('name, slug, category, address_city, address_state, created_at')
+      .eq('owner_id', userId),
+  ])
+
+  const businesses = businessesRes.data || []
+  const businessIds = businesses.map((b) => b.id).filter(Boolean)
+
+  let orders = []
+  if (businessIds.length > 0) {
+    const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()
+    const { data } = await supabase
+      .from('orders')
+      .select('order_number, source, status, created_at, order_items(item_name, quantity, unit_price)')
+      .in('business_id', businessIds)
+      .gte('created_at', cutoff)
+      .order('created_at', { ascending: false })
+    orders = data || []
+  }
+
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    profile: {
+      name: profileRes.data?.name,
+      email: userEmail,
+      phone: profileRes.data?.phone,
+      memberSince: profileRes.data?.created_at,
+    },
+    businesses: businesses.map((b) => ({
+      name: b.name,
+      slug: b.slug,
+      category: b.category,
+      city: b.address_city,
+      state: b.address_state,
+      createdAt: b.created_at,
+    })),
+    orders_last_90_days: orders.map((o) => ({
+      orderNumber: o.order_number,
+      source: o.source,
+      status: o.status,
+      createdAt: o.created_at,
+      items: (o.order_items || []).map((i) => ({
+        name: i.item_name,
+        qty: i.quantity,
+        unitPrice: i.unit_price,
+      })),
+    })),
+  }
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  const today = new Date()
+  const dd = String(today.getDate()).padStart(2, '0')
+  const mm = String(today.getMonth() + 1).padStart(2, '0')
+  const yyyy = today.getFullYear()
+  a.href = url
+  a.download = `menuflow-meus-dados-${dd}${mm}${yyyy}.json`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 export const updatePassword = async (currentPassword, newPassword) => {

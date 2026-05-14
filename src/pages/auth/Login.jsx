@@ -5,6 +5,7 @@ import { signIn, signInWithGoogle } from '../../services/authService'
 import { toggleTheme } from '../../utils/theme'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
+import LgpdFooter from '../../components/layout/LgpdFooter'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -189,6 +190,7 @@ export default function Login() {
 
         </div>
       </div>
+      <LgpdFooter />
     </div>
   )
 }

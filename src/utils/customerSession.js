@@ -1,6 +1,7 @@
 const SESSION_DURATION_HOURS = 8
 export const QUANTITY_ALERT_THRESHOLD = 10
 
+// Campos permitidos — nunca salvar senha, token de pagamento ou dados sensíveis
 export const saveCustomerSession = (businessSlug, customer) => {
   const session = {
     customerId: customer.id,

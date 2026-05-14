@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { IconMoon, IconSun } from '@tabler/icons-react'
+import LgpdFooter from '../../components/layout/LgpdFooter'
 import { supabase } from '../../services/supabase'
 import { toggleTheme } from '../../utils/theme'
 import Spinner from '../../components/ui/Spinner'
@@ -280,6 +281,7 @@ export default function CounterDisplay() {
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         @keyframes glow  { 0%, 100% { box-shadow: none; } 50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); } }
       `}</style>
+      <LgpdFooter className="border-t border-zinc-800 mt-auto" />
     </div>
   )
 }

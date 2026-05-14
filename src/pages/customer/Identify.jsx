@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { IconArrowLeft, IconMoon, IconSun } from '@tabler/icons-react'
+import LgpdFooter from '../../components/layout/LgpdFooter'
 import { fetchBusinessBySlug } from '../../services/businessService'
 import { fetchCustomerByPhone, createCustomer } from '../../services/customerService'
 import { saveCustomerSession, getCustomerSession, getSavedPhone } from '../../utils/customerSession'
@@ -29,6 +30,7 @@ export default function Identify() {
   const [step, setStep] = useState('phone')
   const [phoneRaw, setPhoneRaw] = useState('')
   const [customerName, setCustomerName] = useState('')
+  const [marketingOptIn, setMarketingOptIn] = useState(false)
   const [foundCustomer, setFoundCustomer] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
@@ -108,7 +110,7 @@ export default function Identify() {
     setErrorMsg('')
     setSubmitting(true)
     try {
-      const customer = await createCustomer(business.id, customerName.trim(), phoneRaw)
+      const customer = await createCustomer(business.id, customerName.trim(), phoneRaw, marketingOptIn)
       saveCustomerSession(businessSlug, customer)
       navigate(`/order/${businessSlug}/counter`, { replace: true })
     } catch {
@@ -220,6 +222,19 @@ export default function Identify() {
                   <p className="text-[12px] mt-[6px]" style={{ color: '#EF4444' }}>{errorMsg}</p>
                 )}
               </div>
+
+              {/* Aviso LGPD */}
+              <p className="text-[11px] text-[var(--text-3)] leading-relaxed">
+                Seu nome e telefone serão usados para identificar seu pedido neste estabelecimento.{' '}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:underline"
+                >
+                  Saiba mais
+                </a>
+              </p>
 
               <button
                 type="button"
@@ -346,6 +361,23 @@ export default function Identify() {
                 </div>
               </div>
 
+              {/* Marketing opt-in */}
+              <label
+                data-testid="label-marketing-opt-in"
+                className="flex items-start gap-3 cursor-pointer select-none"
+              >
+                <input
+                  type="checkbox"
+                  data-testid="checkbox-marketing"
+                  checked={marketingOptIn}
+                  onChange={(e) => setMarketingOptIn(e.target.checked)}
+                  className="mt-[2px] w-4 h-4 rounded accent-[var(--accent)] cursor-pointer shrink-0"
+                />
+                <span className="text-[12px] text-[var(--text-3)] leading-relaxed">
+                  Aceito receber promoções deste estabelecimento
+                </span>
+              </label>
+
               <button
                 type="button"
                 data-testid="btn-create-customer"
@@ -365,6 +397,7 @@ export default function Identify() {
         )}
 
       </div>
+      <LgpdFooter />
     </div>
   )
 }

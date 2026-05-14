@@ -12,6 +12,7 @@ import { signUp, signInWithGoogle } from '../../services/authService'
 import { toggleTheme } from '../../utils/theme'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
+import LgpdFooter from '../../components/layout/LgpdFooter'
 
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
 
@@ -23,6 +24,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [privacyAccepted, setPrivacyAccepted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loadingGoogle, setLoadingGoogle] = useState(false)
   const [error, setError] = useState('')
@@ -44,6 +46,7 @@ export default function Register() {
     if (!password) return 'Crie uma senha.'
     if (password.length < 6) return 'A senha deve ter no mínimo 6 caracteres.'
     if (password !== confirmPassword) return 'As senhas não coincidem.'
+    if (!privacyAccepted) return 'Você precisa aceitar a Política de Privacidade para continuar.'
     return ''
   }
 
@@ -53,7 +56,10 @@ export default function Register() {
     setError('')
     setLoading(true)
     try {
-      await signUp(email.trim(), password, name.trim())
+      await signUp(email.trim(), password, name.trim(), {
+        privacy_accepted_at: new Date().toISOString(),
+        privacy_version: '1.0',
+      })
       setSuccess(true)
     } catch (err) {
       if (err.message?.toLowerCase().includes('already registered')) {
@@ -232,6 +238,42 @@ export default function Register() {
               </div>
             </div>
 
+            {/* Consentimento LGPD */}
+            <label
+              data-testid="label-privacy-consent"
+              className="flex items-start gap-3 cursor-pointer select-none"
+            >
+              <input
+                type="checkbox"
+                data-testid="checkbox-privacy"
+                checked={privacyAccepted}
+                onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                className="mt-[2px] w-4 h-4 rounded accent-[var(--accent)] cursor-pointer shrink-0"
+              />
+              <span className="text-[12px] text-[var(--text-2)] leading-relaxed">
+                Li e aceito a{' '}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-accent hover:underline"
+                >
+                  Política de Privacidade
+                </a>
+                {' '}e os{' '}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-accent hover:underline"
+                >
+                  Termos de Uso
+                </a>
+              </span>
+            </label>
+
             {/* Erro */}
             {error && (
               <p data-testid="error-message" className="text-[12px] text-red-500 -mt-1">
@@ -242,6 +284,7 @@ export default function Register() {
             <Button
               fullWidth
               loading={loading}
+              disabled={!privacyAccepted}
               onClick={handleSignUp}
               data-testid="btn-signup"
             >
@@ -282,6 +325,7 @@ export default function Register() {
 
         </div>
       </div>
+      <LgpdFooter />
     </div>
   )
 }

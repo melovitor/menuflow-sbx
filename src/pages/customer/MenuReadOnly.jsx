@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { IconSearch, IconCheck, IconClock, IconMoon, IconSun } from '@tabler/icons-react'
+import LgpdFooter from '../../components/layout/LgpdFooter'
 import { supabase } from '../../services/supabase'
 import { fetchBusinessBySlug, fetchTableByNumber } from '../../services/businessService'
 import { fetchCategories, fetchAllActiveItems } from '../../services/menuService'
@@ -450,6 +451,7 @@ export default function MenuReadOnly() {
           </button>
         </div>
       )}
+      <LgpdFooter className="border-t border-[var(--border)]" />
     </div>
   )
 }

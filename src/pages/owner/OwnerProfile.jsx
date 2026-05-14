@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IconPhoto, IconLogout } from '@tabler/icons-react'
+import { IconPhoto, IconLogout, IconDownload, IconAlertTriangle } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
 import Spinner from '../../components/ui/Spinner'
 import { toast } from '../../components/ui/Toast'
@@ -11,6 +11,8 @@ import {
   updateUserAvatar,
   updateEmail,
   updatePassword,
+  anonymizeAccount,
+  exportUserData,
 } from '../../services/authService'
 import { uploadUserAvatar } from '../../services/storageService'
 import { compressImage } from '../../utils/imageCompressor'
@@ -53,6 +55,11 @@ export default function OwnerProfile() {
   const [avatarFile, setAvatarFile] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const avatarRef = useRef(null)
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteEmailInput, setDeleteEmailInput] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     if (!user?.id) return
@@ -152,8 +159,37 @@ export default function OwnerProfile() {
   }
 
   const handleSignOut = async () => {
+    localStorage.removeItem('owner_session')
     await supabase.auth.signOut()
     navigate('/login')
+  }
+
+  const handleExport = async () => {
+    if (!user?.id) return
+    setExporting(true)
+    try {
+      await exportUserData(user.id, user.email)
+      toast.success('Arquivo baixado com sucesso.')
+    } catch {
+      toast.error('Erro ao exportar dados. Tente novamente.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (deleteEmailInput.trim().toLowerCase() !== user?.email?.toLowerCase()) {
+      toast.error('E-mail não confere. Digite exatamente o e-mail da sua conta.')
+      return
+    }
+    setDeleting(true)
+    try {
+      await anonymizeAccount(user.id)
+      navigate('/login', { replace: true })
+    } catch {
+      toast.error('Erro ao processar solicitação. Tente novamente.')
+      setDeleting(false)
+    }
   }
 
   const displayAvatar = avatarPreview || avatarUrl
@@ -397,6 +433,54 @@ export default function OwnerProfile() {
           </div>
         </section>
 
+        {/* Data export — ITEM 5 */}
+        <section>
+          <p className="text-[11px] font-medium text-[var(--text-3)] uppercase tracking-[.06em] mb-3">
+            Meus dados
+          </p>
+          <div className="bg-[var(--bg-primary)] border border-[var(--border)] rounded-card p-4 flex flex-col gap-3">
+            <div>
+              <p className="text-[13px] font-medium text-[var(--text)]">Portabilidade de dados</p>
+              <p className="text-[11px] text-[var(--text-3)] mt-[3px]">
+                Baixe um arquivo JSON com seu perfil, estabelecimentos e pedidos dos últimos 90 dias.
+              </p>
+            </div>
+            <button
+              type="button"
+              data-testid="btn-export-data"
+              onClick={handleExport}
+              disabled={exporting}
+              className="flex items-center gap-2 px-4 h-[38px] rounded-[10px] border border-[var(--border-strong)] bg-[var(--bg-primary)] text-[13px] font-medium text-[var(--text-2)] disabled:opacity-60 w-fit transition-opacity"
+            >
+              {exporting
+                ? <Spinner size="sm" />
+                : <><IconDownload size={15} />Exportar meus dados</>}
+            </button>
+          </div>
+        </section>
+
+        {/* Account deletion — ITEM 4 */}
+        <section>
+          <p className="text-[11px] font-medium text-[var(--text-3)] uppercase tracking-[.06em] mb-3">
+            Encerramento de conta
+          </p>
+          <div className="bg-[var(--bg-primary)] border border-[var(--border)] rounded-card p-4 flex flex-col gap-3">
+            <p className="text-[12px] text-[var(--text-2)]">
+              Ao solicitar exclusão, seus dados serão anonimizados em até 30 dias. Pedidos e histórico
+              financeiro são mantidos por obrigação legal (90 dias).
+            </p>
+            <button
+              type="button"
+              data-testid="btn-delete-account"
+              onClick={() => setShowDeleteModal(true)}
+              className="flex items-center gap-2 text-[12px] font-medium text-red-500 hover:text-red-400 transition-colors w-fit"
+            >
+              <IconAlertTriangle size={14} />
+              Solicitar exclusão de conta
+            </button>
+          </div>
+        </section>
+
         {/* Logout */}
         <button
           type="button"
@@ -409,6 +493,61 @@ export default function OwnerProfile() {
         </button>
 
       </div>
+
+      {/* Delete account modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-5">
+          <div className="w-full max-w-[360px] bg-[var(--bg-primary)] border border-[var(--border)] rounded-[16px] p-5 flex flex-col gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+                <IconAlertTriangle size={18} className="text-red-500" />
+              </div>
+              <div>
+                <p className="text-[14px] font-medium text-[var(--text)]">Excluir conta</p>
+                <p className="text-[12px] text-[var(--text-2)] mt-1 leading-relaxed">
+                  Sua conta será desativada. Seus dados serão anonimizados em até 30 dias.
+                  Pedidos e histórico são mantidos por obrigação legal (90 dias).
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-medium text-[var(--text-2)] uppercase tracking-[.06em] mb-[6px]">
+                Digite seu e-mail para confirmar
+              </label>
+              <input
+                data-testid="input-delete-confirm-email"
+                type="email"
+                value={deleteEmailInput}
+                onChange={(e) => setDeleteEmailInput(e.target.value)}
+                placeholder={user?.email}
+                className="w-full h-[40px] px-3 rounded-input text-[13px] text-[var(--text)] bg-[var(--bg-secondary)] outline-none border border-[var(--border-strong)] focus:border-red-500"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                data-testid="btn-delete-cancel"
+                onClick={() => { setShowDeleteModal(false); setDeleteEmailInput('') }}
+                className="flex-1 h-[40px] rounded-[10px] border border-[var(--border-strong)] text-[13px] font-medium text-[var(--text-2)] bg-[var(--bg-primary)]"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                data-testid="btn-delete-confirm"
+                onClick={handleDeleteAccount}
+                disabled={deleting || !deleteEmailInput.trim()}
+                className="flex-1 h-[40px] rounded-[10px] bg-red-500 text-white text-[13px] font-medium disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {deleting ? <Spinner size="sm" className="border-white/30 border-t-white" /> : 'Confirmar exclusão'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </OwnerLayout>
   )
 }

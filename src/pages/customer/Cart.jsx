@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { IconArrowLeft, IconMoon, IconSun, IconTrash } from '@tabler/icons-react'
+import LgpdFooter from '../../components/layout/LgpdFooter'
 import { useCartStore } from '../../stores/cartStore'
 import { getCustomerSession } from '../../utils/customerSession'
 import { createCounterOrder } from '../../services/orderService'
@@ -326,6 +327,7 @@ export default function Cart() {
         </div>
       )}
 
+      <LgpdFooter className="border-t border-[var(--border)]" />
     </div>
   )
 }

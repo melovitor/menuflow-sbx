@@ -41,6 +41,8 @@ import OrderStatus from '../pages/customer/OrderStatus'
 
 // Public
 import CounterDisplay from '../pages/public/CounterDisplay'
+import Privacy from '../pages/public/Privacy'
+import Terms from '../pages/public/Terms'
 
 export default function AppRouter() {
   useAuth()
@@ -89,6 +91,8 @@ export default function AppRouter() {
 
         {/* Public */}
         <Route path="/display/:businessSlug" element={<CounterDisplay />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
       </Routes>
     </BrowserRouter>
   )
