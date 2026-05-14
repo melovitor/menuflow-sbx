@@ -439,6 +439,25 @@ export default function PDV() {
 
   return (
     <div className="h-screen bg-[var(--bg-secondary)] flex flex-col">
+
+      {/* Audio activation overlay */}
+      {!audioEnabled && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/75">
+          <button
+            type="button"
+            data-testid="btn-enable-audio"
+            onClick={handleEnableAudio}
+            className="flex flex-col items-center gap-4 px-10 py-8 rounded-[20px] bg-[var(--bg-primary)] border border-[var(--border-strong)]"
+          >
+            <IconVolume size={40} className="text-accent" />
+            <p className="text-[20px] font-medium text-[var(--text)]">Ativar alertas sonoros</p>
+            <p className="text-[15px] text-[var(--text-2)]">
+              Toque para habilitar o som dos chamados de garçom
+            </p>
+          </button>
+        </div>
+      )}
+
       {/* ── Header ── */}
       <header className="flex-shrink-0 h-[52px] px-4 flex items-center gap-3 bg-[var(--bg-primary)] border-b border-[var(--border)] z-40">
         {view === 'order' ? (
@@ -469,19 +488,9 @@ export default function PDV() {
               {businessName}
             </span>
             <div className="flex items-center gap-2">
-              {!audioEnabled ? (
-                <button
-                  type="button"
-                  data-testid="btn-enable-audio"
-                  onClick={handleEnableAudio}
-                  title="Ativar alertas sonoros"
-                  className="w-[32px] h-[32px] rounded-full border border-[var(--border-strong)] bg-[var(--bg-primary)] flex items-center justify-center text-[var(--text-3)]"
-                >
-                  <IconVolumeOff size={15} />
-                </button>
-              ) : (
+              {audioEnabled && (
                 <span
-                  data-testid="btn-disable-audio"
+                  data-testid="btn-audio-active"
                   title="Alertas sonoros ativos"
                   className="w-[32px] h-[32px] rounded-full border border-accent bg-[var(--accent-light)] flex items-center justify-center text-accent"
                 >
