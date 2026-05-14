@@ -74,7 +74,10 @@ export const updateUserAvatar = async (userId, avatarUrl) => {
 }
 
 export const updateEmail = async (newEmail) => {
-  const { error } = await supabase.auth.updateUser({ email: newEmail })
+  const { error } = await supabase.auth.updateUser(
+    { email: newEmail },
+    { emailRedirectTo: `${window.location.origin}/owner/profile` }
+  )
   if (error) throw error
 }
 
