@@ -29,9 +29,18 @@ function BusinessCard({ business, metrics, onToggleOpen, onNavigate }) {
 
   const handleToggle = async (e) => {
     e.stopPropagation()
+    const wasAuto = business.schedule_enabled
     try {
       await onToggleOpen(business.id, business.is_open)
-      toast.success(business.is_open ? 'Estabelecimento fechado' : 'Estabelecimento aberto')
+      if (wasAuto) {
+        toast.success(
+          business.is_open
+            ? 'Fechado manualmente — horário automático desativado'
+            : 'Aberto manualmente — horário automático desativado'
+        )
+      } else {
+        toast.success(business.is_open ? 'Estabelecimento fechado' : 'Estabelecimento aberto')
+      }
     } catch {
       toast.error('Falha ao atualizar status. Tente novamente.')
     }
@@ -82,10 +91,18 @@ function BusinessCard({ business, metrics, onToggleOpen, onNavigate }) {
       </div>
 
       {/* Status badge */}
-      <div className="mb-4">
+      <div className="mb-4 flex items-center gap-2 flex-wrap">
         <Badge variant={business.is_open ? 'open' : 'closed'} data-testid={`badge-status-${business.id}`}>
           {business.is_open ? 'Aberto' : 'Fechado'}
         </Badge>
+        {business.schedule_enabled && (
+          <span
+            data-testid={`badge-auto-${business.id}`}
+            className="text-[10px] font-medium text-[var(--text-3)] px-2 py-[3px] rounded-pill border border-[var(--border)] bg-[var(--bg-tertiary)]"
+          >
+            Horário automático
+          </span>
+        )}
       </div>
 
       {/* Metrics */}

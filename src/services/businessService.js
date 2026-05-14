@@ -4,7 +4,7 @@ import { generateAccessCode } from '../utils/formatters'
 export const fetchMyBusinesses = async (ownerId) => {
   const { data, error } = await supabase
     .from('businesses')
-    .select('id, name, slug, category, logo_url, is_open, timezone, address_city, address_state')
+    .select('id, name, slug, category, logo_url, is_open, schedule_enabled, timezone, address_city, address_state')
     .eq('owner_id', ownerId)
     .order('created_at', { ascending: true })
   if (error) throw error
@@ -85,10 +85,12 @@ export const fetchBusinessMetrics = async (businessId) => {
   }
 }
 
-export const updateBusinessOpenStatus = async (businessId, isOpen) => {
+export const updateBusinessOpenStatus = async (businessId, isOpen, clearSchedule = false) => {
+  const payload = { is_open: isOpen, updated_at: new Date().toISOString() }
+  if (clearSchedule) payload.schedule_enabled = false
   const { error } = await supabase
     .from('businesses')
-    .update({ is_open: isOpen, updated_at: new Date().toISOString() })
+    .update(payload)
     .eq('id', businessId)
   if (error) throw error
 }

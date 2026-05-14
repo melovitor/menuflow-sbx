@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { IconPencil, IconCopy, IconRefresh, IconCheck } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
 import Spinner from '../../components/ui/Spinner'
+import Toggle from '../../components/ui/Toggle'
 import { toast } from '../../components/ui/Toast'
 import {
   fetchBusinessById,
@@ -35,6 +36,7 @@ export default function BusinessSettings() {
     opens_at: '',
     closes_at: '',
     open_days: [],
+    schedule_enabled: false,
   })
   const [saving, setSaving] = useState(false)
 
@@ -48,6 +50,7 @@ export default function BusinessSettings() {
           opens_at: b.opens_at || '',
           closes_at: b.closes_at || '',
           open_days: b.open_days || [],
+          schedule_enabled: b.schedule_enabled || false,
         })
       })
       .catch(() => navigate('/owner/home', { replace: true }))
@@ -87,6 +90,7 @@ export default function BusinessSettings() {
         opens_at: form.opens_at || null,
         closes_at: form.closes_at || null,
         open_days: form.open_days,
+        schedule_enabled: form.schedule_enabled,
       })
       toast.success('Configurações salvas')
     } catch {
@@ -241,11 +245,28 @@ export default function BusinessSettings() {
         {/* ── Horário de funcionamento ── */}
         <section>
           <p className="text-[11px] font-medium text-[var(--text-3)] uppercase tracking-[.06em] mb-3">
-            Horário de funcionamento{' '}
-            <span className="normal-case">— informativo</span>
+            Horário de funcionamento
           </p>
 
-          <div className="bg-[var(--bg-primary)] border border-[var(--border)] rounded-card p-4">
+          <div className="bg-[var(--bg-primary)] border border-[var(--border)] rounded-card p-4 flex flex-col gap-4">
+
+            {/* Auto schedule toggle */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex-1">
+                <p className="text-[13px] font-medium text-[var(--text)]">Abrir/fechar automaticamente</p>
+                <p className="text-[11px] text-[var(--text-3)] mt-[3px]">
+                  {form.schedule_enabled
+                    ? 'O estabelecimento abre e fecha conforme o horário e dias configurados abaixo'
+                    : 'Controle manual pelo toggle na tela inicial'}
+                </p>
+              </div>
+              <Toggle
+                data-testid="toggle-schedule-enabled"
+                checked={form.schedule_enabled}
+                onChange={(v) => setForm((f) => ({ ...f, schedule_enabled: v }))}
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-medium text-[var(--text-2)] uppercase tracking-[.06em] mb-[5px]">
@@ -278,8 +299,7 @@ export default function BusinessSettings() {
         {/* ── Dias de funcionamento ── */}
         <section>
           <p className="text-[11px] font-medium text-[var(--text-3)] uppercase tracking-[.06em] mb-3">
-            Dias de funcionamento{' '}
-            <span className="normal-case">— informativo</span>
+            Dias de funcionamento
           </p>
           <div className="bg-[var(--bg-primary)] border border-[var(--border)] rounded-card p-4">
             <div className="flex gap-2 flex-wrap">
