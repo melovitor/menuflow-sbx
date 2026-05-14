@@ -61,6 +61,26 @@ export default function OwnerProfile() {
   const [deleting, setDeleting] = useState(false)
   const [exporting, setExporting] = useState(false)
 
+  // Processa token de confirmação de troca de e-mail (link enviado pelo Supabase)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const tokenHash = params.get('token_hash')
+    const type = params.get('type')
+    if (tokenHash && type === 'email_change') {
+      supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'email_change' })
+        .then(({ error }) => {
+          if (error) {
+            toast.error('Link inválido ou expirado. Solicite a troca de e-mail novamente.')
+          } else {
+            toast.success('E-mail alterado com sucesso!')
+            setEmailSent(false)
+          }
+          // Limpa os params da URL sem recarregar a página
+          window.history.replaceState({}, '', window.location.pathname)
+        })
+    }
+  }, [])
+
   useEffect(() => {
     if (!user?.id) return
     fetchUserProfile(user.id)
