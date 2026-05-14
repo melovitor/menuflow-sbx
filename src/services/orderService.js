@@ -202,7 +202,7 @@ export const fetchTableOrdersForCheckout = async (tableId) => {
     .from('orders')
     .select('id, order_number, status, created_at, order_items(id, item_name, unit_price, quantity, notes)')
     .eq('table_id', tableId)
-    .in('status', ['pending', 'preparing', 'ready'])
+    .in('status', ['pending', 'preparing', 'ready', 'delivered', 'cancelled'])
     .order('created_at', { ascending: true })
   if (error) throw error
   return data || []
