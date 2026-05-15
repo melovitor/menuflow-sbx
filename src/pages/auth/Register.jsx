@@ -1,14 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  IconBrandGoogle,
   IconEye,
   IconEyeOff,
   IconMoon,
   IconSun,
   IconCircleCheck,
 } from '@tabler/icons-react'
-import { signUp, signInWithGoogle } from '../../services/authService'
+import { signUp } from '../../services/authService'
 import { toggleTheme } from '../../utils/theme'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -26,7 +25,6 @@ export default function Register() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [privacyAccepted, setPrivacyAccepted] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [loadingGoogle, setLoadingGoogle] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [isDark, setIsDark] = useState(
@@ -69,17 +67,6 @@ export default function Register() {
       }
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleGoogleSignUp = async () => {
-    setError('')
-    setLoadingGoogle(true)
-    try {
-      await signInWithGoogle()
-    } catch {
-      setError('Falha ao cadastrar com Google. Tente novamente.')
-      setLoadingGoogle(false)
     }
   }
 
@@ -289,24 +276,6 @@ export default function Register() {
               data-testid="btn-signup"
             >
               Criar conta
-            </Button>
-
-            {/* Divisor */}
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-[var(--border)]" />
-              <span className="text-[11px] text-[var(--text-3)]">ou</span>
-              <div className="flex-1 h-px bg-[var(--border)]" />
-            </div>
-
-            <Button
-              fullWidth
-              variant="secondary"
-              loading={loadingGoogle}
-              onClick={handleGoogleSignUp}
-              data-testid="btn-google"
-            >
-              <IconBrandGoogle size={16} />
-              Cadastrar com Google
             </Button>
 
           </div>

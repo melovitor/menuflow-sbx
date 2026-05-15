@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { IconBrandGoogle, IconEye, IconEyeOff, IconMoon, IconSun } from '@tabler/icons-react'
-import { signIn, signInWithGoogle } from '../../services/authService'
+import { IconEye, IconEyeOff, IconMoon, IconSun } from '@tabler/icons-react'
+import { signIn } from '../../services/authService'
 import { toggleTheme } from '../../utils/theme'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -13,7 +13,6 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [loadingGoogle, setLoadingGoogle] = useState(false)
   const [error, setError] = useState('')
   const [isDark, setIsDark] = useState(
     () => (localStorage.getItem('theme') || 'dark') === 'dark'
@@ -38,17 +37,6 @@ export default function Login() {
       setError('E-mail ou senha incorretos. Verifique e tente novamente.')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleGoogleSignIn = async () => {
-    setError('')
-    setLoadingGoogle(true)
-    try {
-      await signInWithGoogle()
-    } catch {
-      setError('Falha ao entrar com Google. Tente novamente.')
-      setLoadingGoogle(false)
     }
   }
 
@@ -157,23 +145,6 @@ export default function Login() {
               Entrar
             </Button>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-[var(--border)]" />
-              <span className="text-[11px] text-[var(--text-3)]">ou</span>
-              <div className="flex-1 h-px bg-[var(--border)]" />
-            </div>
-
-            <Button
-              fullWidth
-              variant="secondary"
-              loading={loadingGoogle}
-              onClick={handleGoogleSignIn}
-              data-testid="btn-google"
-            >
-              <IconBrandGoogle size={16} />
-              Entrar com Google
-            </Button>
           </div>
 
           {/* Register link */}
