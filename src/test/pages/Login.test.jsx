@@ -5,7 +5,6 @@ import Login from '../../pages/auth/Login'
 
 vi.mock('../../services/authService', () => ({
   signIn: vi.fn(),
-  signInWithGoogle: vi.fn(),
 }))
 
 const mockNavigate = vi.fn()
@@ -14,7 +13,7 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate }
 })
 
-import { signIn, signInWithGoogle } from '../../services/authService'
+import { signIn } from '../../services/authService'
 
 describe('Login — elementos', () => {
   beforeEach(() => {
@@ -29,7 +28,6 @@ describe('Login — elementos', () => {
     expect(screen.getByTestId('input-password')).toBeInTheDocument()
     expect(screen.getByTestId('toggle-password')).toBeInTheDocument()
     expect(screen.getByTestId('btn-signin')).toBeInTheDocument()
-    expect(screen.getByTestId('btn-google')).toBeInTheDocument()
     expect(screen.getByTestId('link-forgot-password')).toBeInTheDocument()
     expect(screen.getByTestId('link-register')).toBeInTheDocument()
     expect(screen.getByTestId('theme-toggle')).toBeInTheDocument()
@@ -132,21 +130,6 @@ describe('Login — autenticação', () => {
     await waitFor(() => expect(signIn).toHaveBeenCalled())
   })
 
-  it('chama signInWithGoogle', async () => {
-    signInWithGoogle.mockResolvedValueOnce({})
-    renderWithRouter(<Login />)
-    fireEvent.click(screen.getByTestId('btn-google'))
-    await waitFor(() => expect(signInWithGoogle).toHaveBeenCalled())
-  })
-
-  it('exibe erro quando Google falha', async () => {
-    signInWithGoogle.mockRejectedValueOnce(new Error('OAuth error'))
-    renderWithRouter(<Login />)
-    fireEvent.click(screen.getByTestId('btn-google'))
-    await waitFor(() => {
-      expect(screen.getByTestId('error-message')).toBeInTheDocument()
-    })
-  })
 })
 
 describe('Login — password toggle', () => {

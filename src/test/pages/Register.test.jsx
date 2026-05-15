@@ -5,7 +5,6 @@ import Register from '../../pages/auth/Register'
 
 vi.mock('../../services/authService', () => ({
   signUp: vi.fn(),
-  signInWithGoogle: vi.fn(),
 }))
 
 const mockNavigate = vi.fn()
@@ -14,7 +13,7 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate }
 })
 
-import { signUp, signInWithGoogle } from '../../services/authService'
+import { signUp } from '../../services/authService'
 
 const fill = (fields) => {
   if (fields.name !== undefined)
@@ -50,7 +49,6 @@ describe('Register — elementos', () => {
     expect(screen.getByTestId('toggle-password')).toBeInTheDocument()
     expect(screen.getByTestId('toggle-confirm-password')).toBeInTheDocument()
     expect(screen.getByTestId('btn-signup')).toBeInTheDocument()
-    expect(screen.getByTestId('btn-google')).toBeInTheDocument()
     expect(screen.getByTestId('link-login')).toBeInTheDocument()
     expect(screen.getByTestId('theme-toggle')).toBeInTheDocument()
   })
@@ -172,19 +170,6 @@ describe('Register — cadastro', () => {
     await waitFor(() => expect(screen.getByTestId('error-message')).toBeInTheDocument())
   })
 
-  it('chama signInWithGoogle', async () => {
-    signInWithGoogle.mockResolvedValueOnce({})
-    renderWithRouter(<Register />)
-    fireEvent.click(screen.getByTestId('btn-google'))
-    await waitFor(() => expect(signInWithGoogle).toHaveBeenCalled())
-  })
-
-  it('exibe erro quando Google falha', async () => {
-    signInWithGoogle.mockRejectedValueOnce(new Error('OAuth error'))
-    renderWithRouter(<Register />)
-    fireEvent.click(screen.getByTestId('btn-google'))
-    await waitFor(() => expect(screen.getByTestId('error-message')).toBeInTheDocument())
-  })
 })
 
 describe('Register — password toggles', () => {
