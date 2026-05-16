@@ -34,6 +34,7 @@ const SOURCE_STYLE = {
 }
 
 const METRIC_DEFS = [
+  { key: 'revenue',        label: 'Faturamento',       sub: 'Hoje',               color: '#7C3AED',       testId: 'metric-revenue' },
   { key: 'activeOrders',   label: 'Pedidos Ativos',    sub: 'Na fila agora',      color: '#10B981',       testId: 'metric-active-orders' },
   { key: 'occupiedTables', label: 'Mesas Ocupadas',    sub: 'Com pedido aberto',  color: '#F59E0B',       testId: 'metric-occupied-tables' },
   { key: 'counterQueue',   label: 'Fila do Balcão',    sub: 'Pedidos de balcão',  color: '#EF4444',       testId: 'metric-counter-queue' },
@@ -253,7 +254,7 @@ export default function Dashboard() {
               <p className="text-[11px] font-medium text-[var(--text-3)] uppercase tracking-[.06em] mb-3">
                 Operação agora
               </p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {METRIC_DEFS.map((def) => (
                   <div
                     key={def.testId}

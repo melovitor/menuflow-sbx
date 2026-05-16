@@ -89,8 +89,6 @@ export default function BusinessSettings() {
         max_discount_percent: form.max_discount_percent !== '' ? Number(form.max_discount_percent) : 0,
         opens_at: form.opens_at || null,
         closes_at: form.closes_at || null,
-        open_days: form.open_days,
-        schedule_enabled: form.schedule_enabled,
       })
       toast.success('Configurações salvas')
     } catch {

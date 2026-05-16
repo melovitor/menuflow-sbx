@@ -44,7 +44,6 @@ export default function Register() {
     if (!password) return 'Crie uma senha.'
     if (password.length < 6) return 'A senha deve ter no mínimo 6 caracteres.'
     if (password !== confirmPassword) return 'As senhas não coincidem.'
-    if (!privacyAccepted) return 'Você precisa aceitar a Política de Privacidade para continuar.'
     return ''
   }
 
@@ -54,10 +53,7 @@ export default function Register() {
     setError('')
     setLoading(true)
     try {
-      await signUp(email.trim(), password, name.trim(), {
-        privacy_accepted_at: new Date().toISOString(),
-        privacy_version: '1.0',
-      })
+      await signUp(email.trim(), password, name.trim())
       setSuccess(true)
     } catch (err) {
       if (err.message?.toLowerCase().includes('already registered')) {
@@ -271,7 +267,6 @@ export default function Register() {
             <Button
               fullWidth
               loading={loading}
-              disabled={!privacyAccepted}
               onClick={handleSignUp}
               data-testid="btn-signup"
             >

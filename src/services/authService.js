@@ -13,7 +13,7 @@ export const signUp = async (email, password, name, privacyMeta = {}) => {
     options: {
       data: {
         name,
-        privacy_accepted_at: privacyMeta.privacy_accepted_at || null,
+        privacy_accepted_at: privacyMeta.privacy_accepted_at || new Date().toISOString(),
         privacy_version: privacyMeta.privacy_version || '1.0',
       },
     },
