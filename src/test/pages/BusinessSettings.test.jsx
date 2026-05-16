@@ -211,6 +211,8 @@ describe('BusinessSettings — salvar', () => {
         max_discount_percent: 15,
         opens_at: '18:00',
         closes_at: '00:00',
+        open_days: [],
+        schedule_enabled: false,
       })
     )
   })

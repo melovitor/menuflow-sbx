@@ -188,7 +188,8 @@ describe('Tables', () => {
       expect(createTable).toHaveBeenCalledWith(
         'b1',
         4,
-        'http://localhost:5173/order/bar-teste/table/4'
+        'http://localhost:5173/order/bar-teste/table/4',
+        null
       )
     )
   })

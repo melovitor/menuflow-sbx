@@ -126,9 +126,13 @@ describe('Register — cadastro', () => {
     signUp.mockResolvedValueOnce({ user: { id: '1' } })
     renderWithRouter(<Register />)
     fill(VALID)
+    fireEvent.click(screen.getByTestId('checkbox-privacy'))
     fireEvent.click(screen.getByTestId('btn-signup'))
     await waitFor(() =>
-      expect(signUp).toHaveBeenCalledWith(VALID.email, VALID.password, VALID.name)
+      expect(signUp).toHaveBeenCalledWith(
+        VALID.email, VALID.password, VALID.name,
+        expect.objectContaining({ privacy_version: '1.0' })
+      )
     )
   })
 
@@ -136,6 +140,7 @@ describe('Register — cadastro', () => {
     signUp.mockResolvedValueOnce({ user: { id: '1' } })
     renderWithRouter(<Register />)
     fill(VALID)
+    fireEvent.click(screen.getByTestId('checkbox-privacy'))
     fireEvent.click(screen.getByTestId('btn-signup'))
     await waitFor(() => expect(screen.getByTestId('success-screen')).toBeInTheDocument())
     expect(screen.getByTestId('btn-go-login')).toBeInTheDocument()
@@ -146,6 +151,7 @@ describe('Register — cadastro', () => {
     signUp.mockResolvedValueOnce({ user: { id: '1' } })
     renderWithRouter(<Register />)
     fill(VALID)
+    fireEvent.click(screen.getByTestId('checkbox-privacy'))
     fireEvent.click(screen.getByTestId('btn-signup'))
     await waitFor(() => screen.getByTestId('btn-go-login'))
     fireEvent.click(screen.getByTestId('btn-go-login'))
@@ -156,6 +162,7 @@ describe('Register — cadastro', () => {
     signUp.mockRejectedValueOnce(new Error('User already registered'))
     renderWithRouter(<Register />)
     fill(VALID)
+    fireEvent.click(screen.getByTestId('checkbox-privacy'))
     fireEvent.click(screen.getByTestId('btn-signup'))
     await waitFor(() => {
       expect(screen.getByTestId('error-message')).toHaveTextContent('já está cadastrado')

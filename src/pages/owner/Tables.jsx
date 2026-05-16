@@ -118,7 +118,7 @@ export default function Tables() {
       for (let i = 0; i < count; i++) {
         const number = nextNumber + i
         const qrUrl = getTableQrUrl(business.slug, number)
-        const table = await createTable(id, number, qrUrl)
+        const table = await createTable(id, number, qrUrl, capacity)
         created.push(table)
       }
       setTables((prev) => [...prev, ...created])
