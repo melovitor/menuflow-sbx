@@ -6,15 +6,6 @@ export const signIn = async (email, password) => {
   return data
 }
 
-export const signInWithGoogle = async () => {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: `${window.location.origin}/owner/home` },
-  })
-  if (error) throw error
-  return data
-}
-
 export const signUp = async (email, password, name, privacyMeta = {}) => {
   const { data, error } = await supabase.auth.signUp({
     email,

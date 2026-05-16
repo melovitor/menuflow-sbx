@@ -52,9 +52,13 @@ export default function OwnerLayout({ title, showBack = false, backTo, children 
   }, [avatarOpen])
 
   return (
-    <div className="min-h-screen bg-[var(--bg-secondary)] flex flex-col">
-      {/* Header */}
-      <header className="h-[52px] px-5 flex items-center bg-[var(--bg-primary)] border-b border-[var(--border)] sticky top-0 z-40">
+    <div className="min-h-dvh bg-[var(--bg-secondary)] flex flex-col">
+      {/* Header — fixed, absorbs status bar safe area on PWA */}
+      <header
+        className="fixed top-0 left-0 right-0 z-40 bg-[var(--bg-primary)] border-b border-[var(--border)]"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
+        <div className="h-[52px] px-5 flex items-center">
 
         {/* Left — back button + title OR empty space */}
         <div className="flex-1 flex items-center gap-2 min-w-0">
@@ -142,10 +146,14 @@ export default function OwnerLayout({ title, showBack = false, backTo, children 
           </div>
         </div>
 
+        </div>
       </header>
 
-      {/* Page content */}
-      <main className="flex-1 flex flex-col">
+      {/* Page content — offset below fixed header + safe area */}
+      <main
+        className="flex-1 flex flex-col"
+        style={{ paddingTop: 'calc(3.25rem + env(safe-area-inset-top))' }}
+      >
         {children}
       </main>
     </div>
