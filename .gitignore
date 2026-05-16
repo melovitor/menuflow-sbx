@@ -35,3 +35,5 @@ dev-out.txt
 /playwright-report/
 /test-results/
 /coverage/
+
+.vercel

@@ -267,7 +267,7 @@ export default function BusinessSettings() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
               <div>
                 <label className="block text-[11px] font-medium text-[var(--text-2)] uppercase tracking-[.06em] mb-[5px]">
                   Abre às

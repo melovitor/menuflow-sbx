@@ -2352,3 +2352,65 @@ Adicionar aos itens já planejados:
   Não fazer em produção ativa — planejar migração com cuidado
 - Múltiplos owners por estabelecimento (convite por email)
 - Operador no PDV (perfis granulares de staff)
+
+
+---
+
+## LGPD — Conformidade Técnica
+
+O MenuFlow coleta e trata dados pessoais de duas categorias de titulares:
+- **Owners** — nome, email, telefone, foto de perfil
+- **Clientes dos estabelecimentos** — nome, telefone
+
+A LGPD exige implementação técnica das seguintes obrigações:
+
+### Dados coletados e finalidade
+
+| Dado | Titular | Finalidade | Base legal |
+|---|---|---|---|
+| Nome, email, senha | Owner | Autenticação e identificação | Execução de contrato |
+| Telefone do owner | Owner | Contato e suporte | Legítimo interesse |
+| Foto de perfil | Owner | Personalização da interface | Consentimento |
+| Nome do cliente | Cliente do bar | Identificação no balcão | Legítimo interesse |
+| Telefone do cliente | Cliente do bar | Identificação e histórico | Legítimo interesse |
+| Pedidos realizados | Cliente do bar | Operação do serviço | Execução de contrato |
+
+### Obrigações técnicas implementadas
+
+1. **Consentimento explícito** — banner/checkbox no cadastro de owner e na identificação do cliente via QR informando quais dados são coletados e para quê.
+
+2. **Política de privacidade** — página /privacy acessível sem login explicando: quais dados são coletados, finalidade, como são protegidos, tempo de retenção, direitos do titular e como exercê-los.
+
+3. **Direito de acesso** — owner pode ver todos os seus dados no perfil.
+
+4. **Direito de correção** — owner pode editar nome, telefone e foto no perfil.
+
+5. **Direito de exclusão** — owner pode solicitar exclusão da conta. Dados são anonimizados (não deletados imediatamente para manter integridade dos pedidos históricos).
+
+6. **Direito de portabilidade** — owner pode exportar seus dados em formato legível (JSON ou CSV).
+
+7. **Retenção de dados** — pedidos retidos por 90 dias conforme já documentado. Dados de clientes do estabelecimento retidos enquanto o negócio estiver ativo.
+
+8. **Segurança** — RLS no Supabase, HTTPS obrigatório, sem dados sensíveis no localStorage além da sessão.
+
+9. **Opt-in de marketing** — campo `marketing_opt_in` já existe na tabela customers. Exibir checkbox explícito na identificação do cliente.
+
+10. **Notificação de vazamento** — em caso de incidente, notificar a ANPD em até 72h e os titulares afetados.
+
+### O que NÃO fazer
+- Nunca coletar dados além do necessário
+- Nunca compartilhar dados de clientes com terceiros sem consentimento
+- Nunca usar dados de clientes do estabelecimento para marketing do MenuFlow sem opt-in separado
+- Nunca armazenar senha em texto puro (Supabase Auth cuida disso)
+- Nunca expor CPF, RG ou dados sensíveis — MenuFlow não coleta esses dados
+
+### Textos obrigatórios na UI
+
+**No cadastro do owner:**
+"Ao criar sua conta você concorda com nossa [Política de Privacidade] e [Termos de Uso]. Seus dados são usados exclusivamente para operar o MenuFlow."
+
+**Na identificação do cliente via QR:**
+"Seu nome e telefone serão usados para identificar seu pedido. [Saiba mais]"
+
+**Checkbox de marketing (opcional):**
+"Aceito receber promoções e novidades deste estabelecimento"
