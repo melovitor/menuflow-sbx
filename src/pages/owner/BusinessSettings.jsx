@@ -267,8 +267,8 @@ export default function BusinessSettings() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
+            <div className="grid grid-cols-2 gap-3 overflow-hidden">
+              <div className="min-w-0">
                 <label className="block text-[11px] font-medium text-[var(--text-2)] uppercase tracking-[.06em] mb-[5px]">
                   Abre às
                 </label>
@@ -280,7 +280,7 @@ export default function BusinessSettings() {
                   className={inputCls}
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <label className="block text-[11px] font-medium text-[var(--text-2)] uppercase tracking-[.06em] mb-[5px]">
                   Fecha às
                 </label>
