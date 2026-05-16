@@ -71,6 +71,13 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Prevent iOS Safari auto-zoom on input focus (requires font-size >= 16px) */
+  @media (max-width: 639px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+
   html {
     background-color: #18181B;
   }
