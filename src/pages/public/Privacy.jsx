@@ -4,7 +4,7 @@ import { toggleTheme } from '../../utils/theme'
 
 const LAST_UPDATED = '14 de maio de 2026'
 const PRIVACY_VERSION = '1.0'
-const DPO_EMAIL = 'privacidade@menuflow.app'
+const DPO_EMAIL = 'grupovmtecnologia@gmail.com'
 
 function Section({ title, children }) {
   return (
