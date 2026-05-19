@@ -16,16 +16,17 @@ function formatDate(iso) {
 function exportVCard(customers) {
   const vcf = customers.map((c) => {
     const phone = c.phone.replace(/\D/g, '')
-    const nameParts = c.name.trim().split(/\s+/)
-    const firstName = nameParts[0] || ''
-    const lastName = nameParts.slice(1).join(' ') || ''
+    const firstName = c.name.trim().split(/\s+/)[0] || c.name.trim()
+    const last4 = phone.slice(-4)
+    const displayName = `MF ${firstName} ${last4}`
     return [
       'BEGIN:VCARD',
       'VERSION:3.0',
-      `FN:${c.name}`,
-      `N:${lastName};${firstName};;;`,
+      `FN:${displayName}`,
+      `N:;${firstName};;;`,
       `TEL;TYPE=CELL:+55${phone}`,
       'END:VCARD',
+      '',
     ].join('\r\n')
   }).join('\r\n')
 
