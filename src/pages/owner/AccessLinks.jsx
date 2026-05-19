@@ -1,8 +1,9 @@
 import { useParams } from 'react-router-dom'
-import { IconCash, IconToolsKitchen2, IconCopy, IconExternalLink, IconCheck } from '@tabler/icons-react'
-import { useState } from 'react'
+import { IconCash, IconToolsKitchen2, IconCopy, IconExternalLink, IconCheck, IconDeviceTv } from '@tabler/icons-react'
+import { useState, useEffect } from 'react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
 import { toast } from '../../components/ui/Toast'
+import { fetchBusinessById } from '../../services/businessService'
 
 const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin
 
@@ -70,6 +71,11 @@ function LinkCard({ icon: Icon, iconColor, iconBg, title, description, url }) {
 
 export default function AccessLinks() {
   const { id } = useParams()
+  const [slug, setSlug] = useState(null)
+
+  useEffect(() => {
+    fetchBusinessById(id).then((b) => setSlug(b.slug)).catch(() => {})
+  }, [id])
 
   const links = [
     {
@@ -88,6 +94,14 @@ export default function AccessLinks() {
       description: 'Tela de pedidos da cozinha',
       url: `${APP_URL}/kds/${id}`,
     },
+    ...(slug ? [{
+      icon: IconDeviceTv,
+      iconColor: '#F59E0B',
+      iconBg: 'var(--amber-bg)',
+      title: 'Display — TV do Balcão',
+      description: 'Tela pública onde clientes acompanham o pedido',
+      url: `${APP_URL}/display/${slug}`,
+    }] : []),
   ]
 
   return (
