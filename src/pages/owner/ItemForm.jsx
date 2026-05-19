@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { IconPhoto } from '@tabler/icons-react'
+import { IconPhoto, IconChevronRight } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
 import Spinner from '../../components/ui/Spinner'
 import Toggle from '../../components/ui/Toggle'
@@ -12,6 +12,8 @@ import {
   createMenuItem,
   updateMenuItem,
 } from '../../services/menuService'
+import { fetchRecipeCMV } from '../../services/inventoryService'
+import { formatCurrency } from '../../utils/formatters'
 
 const TAG_OPTIONS = [
   { value: 'vegetarian', label: 'Vegetariano' },
@@ -49,6 +51,7 @@ export default function ItemForm() {
   const [photoPreview, setPhotoPreview] = useState('')
   const [existingPhotoUrl, setExistingPhotoUrl] = useState('')
   const [errors, setErrors] = useState({})
+  const [recipeCMV, setRecipeCMV] = useState(null)
 
   const fileInputRef = useRef(null)
 
@@ -71,6 +74,7 @@ export default function ItemForm() {
           is_active: item.is_active,
         })
         setExistingPhotoUrl(item.photo_url || '')
+        fetchRecipeCMV(itemId).then(setRecipeCMV).catch(() => {})
       })
       .catch(() => {
         toast.error('Erro ao carregar item.')
@@ -309,6 +313,32 @@ export default function ItemForm() {
           </div>
         </div>
 
+        {/* CMV info — visible in edit mode when recipe is configured */}
+        {isEdit && recipeCMV && recipeCMV.items.length > 0 && (() => {
+          const price = Number(form.price) || 0
+          const cmv = recipeCMV.cmv
+          const margin = price > 0 ? ((price - cmv) / price) * 100 : null
+          const marginColor =
+            margin === null ? 'text-[var(--text-3)]'
+            : margin > 60 ? 'text-[var(--green-text)]'
+            : margin >= 30 ? 'text-[var(--amber-text)]'
+            : 'text-[var(--red-text)]'
+          return (
+            <div className="flex items-center gap-3 px-3 py-2 rounded-[10px] bg-[var(--bg-tertiary)] border border-[var(--border)]">
+              <div className="flex-1">
+                <p className="text-[11px] text-[var(--text-3)]">CMV</p>
+                <p className="text-[13px] font-medium text-[var(--text)]">{formatCurrency(cmv)}</p>
+              </div>
+              {margin !== null && (
+                <div className="flex-1 text-right">
+                  <p className="text-[11px] text-[var(--text-3)]">Margem bruta</p>
+                  <p className={`text-[13px] font-medium ${marginColor}`}>{margin.toFixed(1)}%</p>
+                </div>
+              )}
+            </div>
+          )
+        })()}
+
         {/* Prep time */}
         <div>
           <label className="block text-[11px] font-medium text-[var(--text-2)] uppercase tracking-[.06em] mb-[5px]">
@@ -365,6 +395,32 @@ export default function ItemForm() {
             data-testid="toggle-active"
           />
         </div>
+
+        {/* Ficha Técnica — apenas no modo edição */}
+        {isEdit && (
+          <button
+            type="button"
+            data-testid="btn-recipe"
+            onClick={() =>
+              navigate(`/owner/business/${businessId}/menu/items/${itemId}/recipe`, {
+                state: { categoryId, categoryName, itemName: form.name },
+              })
+            }
+            className="w-full flex items-center justify-between px-4 py-3 rounded-[10px] border border-[var(--border-strong)] bg-[var(--bg-primary)] hover:border-accent hover:text-accent transition-colors group"
+          >
+            <div>
+              <p className="text-[13px] font-medium text-[var(--text)] group-hover:text-accent text-left">
+                Ficha Técnica
+              </p>
+              <p className="text-[11px] text-[var(--text-3)] text-left">
+                {recipeCMV && recipeCMV.items.length > 0
+                  ? `${recipeCMV.items.length} insumo(s) configurado(s)`
+                  : 'Configurar insumos e CMV'}
+              </p>
+            </div>
+            <IconChevronRight size={16} className="text-[var(--text-3)] group-hover:text-accent flex-shrink-0" />
+          </button>
+        )}
 
         {/* Save */}
         <button

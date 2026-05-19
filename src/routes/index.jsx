@@ -23,6 +23,11 @@ import Dashboard from '../pages/owner/Dashboard'
 import OrdersList from '../pages/owner/OrdersList'
 import OwnerProfile from '../pages/owner/OwnerProfile'
 import AccessLinks from '../pages/owner/AccessLinks'
+import Suppliers from '../pages/owner/Suppliers'
+import Ingredients from '../pages/owner/Ingredients'
+import RecipeForm from '../pages/owner/RecipeForm'
+import StockMovements from '../pages/owner/StockMovements'
+import PurchaseOrders from '../pages/owner/PurchaseOrders'
 
 // Staff
 import StaffLogin from '../pages/staff/StaffLogin'
@@ -73,6 +78,11 @@ export default function AppRouter() {
         <Route path="/owner/business/:id/orders" element={<OwnerRoute><OrdersList /></OwnerRoute>} />
         <Route path="/owner/profile" element={<OwnerRoute><OwnerProfile /></OwnerRoute>} />
         <Route path="/owner/business/:id/access" element={<OwnerRoute><AccessLinks /></OwnerRoute>} />
+        <Route path="/owner/business/:id/suppliers" element={<OwnerRoute><Suppliers /></OwnerRoute>} />
+        <Route path="/owner/business/:id/stock/ingredients" element={<OwnerRoute><Ingredients /></OwnerRoute>} />
+        <Route path="/owner/business/:id/menu/items/:itemId/recipe" element={<OwnerRoute><RecipeForm /></OwnerRoute>} />
+        <Route path="/owner/business/:id/stock/movements" element={<OwnerRoute><StockMovements /></OwnerRoute>} />
+        <Route path="/owner/business/:id/purchase-orders" element={<OwnerRoute><PurchaseOrders /></OwnerRoute>} />
 
         {/* Staff */}
         <Route path="/staff/login" element={<StaffLogin />} />

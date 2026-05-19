@@ -52,6 +52,57 @@ export const updateOrderStatus = async (orderId, status) => {
     .update({ status, updated_at: new Date().toISOString() })
     .eq('id', orderId)
   if (error) throw error
+
+  if (status === 'ready') {
+    deductStockForOrder(orderId).catch(() => {})
+  }
+}
+
+const deductStockForOrder = async (orderId) => {
+  const { data: order } = await supabase
+    .from('orders')
+    .select('business_id, order_items(item_id, quantity)')
+    .eq('id', orderId)
+    .single()
+  if (!order) return
+
+  for (const oi of order.order_items || []) {
+    if (!oi.item_id) continue
+
+    const { data: recipe } = await supabase
+      .from('recipe_items')
+      .select('ingredient_id, quantity')
+      .eq('menu_item_id', oi.item_id)
+    if (!recipe?.length) continue
+
+    for (const ri of recipe) {
+      const consumed = oi.quantity * ri.quantity
+
+      const { data: ing } = await supabase
+        .from('ingredients')
+        .select('current_stock')
+        .eq('id', ri.ingredient_id)
+        .single()
+      if (!ing) continue
+
+      await supabase
+        .from('ingredients')
+        .update({
+          current_stock: Math.max(0, ing.current_stock - consumed),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', ri.ingredient_id)
+
+      await supabase.from('stock_movements').insert({
+        business_id: order.business_id,
+        ingredient_id: ri.ingredient_id,
+        type: 'out',
+        quantity: -consumed,
+        order_id: orderId,
+        notes: 'Baixa automática',
+      })
+    }
+  }
 }
 
 export const fetchKdsOrders = async (businessId) => {

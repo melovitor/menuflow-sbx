@@ -7,6 +7,7 @@ import {
   IconSettings,
   IconReceipt,
   IconLink,
+  IconPackage,
 } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
 import Toggle from '../../components/ui/Toggle'
@@ -78,6 +79,15 @@ const NAV_ITEMS = [
     iconBg: '#EFF6FF',
     iconBgDark: '#0C1A2E',
     testId: 'nav-access',
+  },
+  {
+    key: 'stock/ingredients',
+    label: 'Estoque',
+    description: 'Insumos e compras',
+    icon: IconPackage,
+    iconColor: '#7C3AED',
+    iconBg: 'var(--accent-light)',
+    testId: 'nav-stock',
   },
 ]
 

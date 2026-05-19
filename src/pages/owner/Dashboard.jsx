@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useParams } from 'react-router-dom'
-import { IconShoppingBag, IconClock, IconSearch } from '@tabler/icons-react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { IconShoppingBag, IconClock, IconSearch, IconAlertTriangle } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
 import Spinner from '../../components/ui/Spinner'
 import { toast } from '../../components/ui/Toast'
 import { fetchBusinessById, fetchBusinessMetrics } from '../../services/businessService'
 import { fetchActiveOrders, fetchRevenueByPeriod } from '../../services/orderService'
+import { fetchAlertIngredientsCount } from '../../services/inventoryService'
 import { supabase } from '../../services/supabase'
 import { formatCurrency } from '../../utils/formatters'
 
@@ -71,11 +72,13 @@ const elapsed = (createdAt) => {
 
 export default function Dashboard() {
   const { id } = useParams()
+  const navigate = useNavigate()
 
   const [business, setBusiness] = useState(null)
   const [metrics, setMetrics] = useState({ activeOrders: 0, occupiedTables: 0, revenue: 0, counterQueue: 0 })
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [alertCount, setAlertCount] = useState(0)
 
   const [revPeriod, setRevPeriod] = useState('today')
   const [customFrom, setCustomFrom] = useState('')
@@ -108,6 +111,11 @@ export default function Dashboard() {
         setRevenue(data)
       }
     } catch { /* silent */ }
+  }, [id])
+
+  // Alerta de insumos — carregado uma vez (não precisa de realtime)
+  useEffect(() => {
+    fetchAlertIngredientsCount(id).then(setAlertCount).catch(() => {})
   }, [id])
 
   // Carga inicial
@@ -277,6 +285,26 @@ export default function Dashboard() {
                 ))}
               </div>
             </section>
+
+            {/* Alerta de estoque */}
+            {alertCount > 0 && (
+              <button
+                type="button"
+                data-testid="alert-ingredients"
+                onClick={() => navigate(`/owner/business/${id}/stock/ingredients?filter=alert`)}
+                className="w-full flex items-center gap-3 bg-[var(--amber-bg)] border border-[var(--amber-border)] rounded-[12px] px-4 py-3 text-left hover:border-[var(--amber-text)] transition-colors"
+              >
+                <IconAlertTriangle size={18} className="text-[var(--amber-text)] flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-medium text-[var(--amber-text)]">
+                    {alertCount} insumo{alertCount !== 1 ? 's' : ''} abaixo do estoque mínimo
+                  </p>
+                  <p className="text-[11px] text-[var(--amber-text)] opacity-80">
+                    Toque para ver os insumos em alerta
+                  </p>
+                </div>
+              </button>
+            )}
 
             {/* Active orders */}
             <section>
