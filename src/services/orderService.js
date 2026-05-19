@@ -155,6 +155,42 @@ export const createCounterOrder = async ({ businessId, customerId, customerName,
   return order
 }
 
+export const createTableOrder = async ({ businessId, tableId, customerId, customerName, items }) => {
+  const { data: orderNumber, error: rpcErr } = await supabase.rpc('generate_order_number', {
+    p_business_id: businessId,
+  })
+  if (rpcErr) throw rpcErr
+
+  const { data: order, error: orderErr } = await supabase
+    .from('orders')
+    .insert({
+      business_id: businessId,
+      order_number: orderNumber,
+      table_id: tableId,
+      customer_id: customerId || null,
+      customer_name: customerName,
+      source: 'table',
+      status: 'pending',
+    })
+    .select()
+    .single()
+  if (orderErr) throw orderErr
+
+  const { error: itemsErr } = await supabase.from('order_items').insert(
+    items.map((item) => ({
+      order_id: order.id,
+      item_id: item.itemId,
+      item_name: item.itemName,
+      unit_price: item.unitPrice,
+      quantity: item.quantity,
+      notes: item.notes || null,
+    }))
+  )
+  if (itemsErr) throw itemsErr
+
+  return order
+}
+
 export const cancelOrder = async (orderId) => {
   const { error } = await supabase
     .from('orders')

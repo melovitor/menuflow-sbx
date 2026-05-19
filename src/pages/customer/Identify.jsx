@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { IconArrowLeft, IconMoon, IconSun } from '@tabler/icons-react'
 import LgpdFooter from '../../components/layout/LgpdFooter'
 import { fetchBusinessBySlug } from '../../services/businessService'
@@ -21,6 +21,8 @@ const getInitials = (name = '') => {
 export default function Identify() {
   const { businessSlug } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
+  const returnTo = location.state?.returnTo || `/order/${businessSlug}/counter`
   const [isDark, setIsDark] = useState(() => (localStorage.getItem('theme') || 'dark') === 'dark')
 
   const [business, setBusiness] = useState(null)
@@ -42,7 +44,7 @@ export default function Identify() {
   useEffect(() => {
     const session = getCustomerSession(businessSlug)
     if (session) {
-      navigate(`/order/${businessSlug}/counter`, { replace: true })
+      navigate(returnTo, { replace: true })
       return
     }
     fetchBusinessBySlug(businessSlug)
@@ -94,7 +96,7 @@ export default function Identify() {
   // ── Step 2a: confirmed identity ───────────────────────────────
   const handleConfirmYes = () => {
     saveCustomerSession(businessSlug, foundCustomer)
-    navigate(`/order/${businessSlug}/counter`, { replace: true })
+    navigate(returnTo, { replace: true })
   }
 
   // ── Step 2b: not me — clear phone and go back ─────────────────
@@ -112,7 +114,7 @@ export default function Identify() {
     try {
       const customer = await createCustomer(business.id, customerName.trim(), phoneRaw, marketingOptIn)
       saveCustomerSession(businessSlug, customer)
-      navigate(`/order/${businessSlug}/counter`, { replace: true })
+      navigate(returnTo, { replace: true })
     } catch {
       setErrorMsg('Erro ao criar conta. Tente novamente.')
     } finally {

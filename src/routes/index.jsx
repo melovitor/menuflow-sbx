@@ -28,6 +28,8 @@ import Ingredients from '../pages/owner/Ingredients'
 import RecipeForm from '../pages/owner/RecipeForm'
 import StockMovements from '../pages/owner/StockMovements'
 import PurchaseOrders from '../pages/owner/PurchaseOrders'
+import CMVReport from '../pages/owner/CMVReport'
+import Customers from '../pages/owner/Customers'
 
 // Staff
 import StaffLogin from '../pages/staff/StaffLogin'
@@ -83,6 +85,8 @@ export default function AppRouter() {
         <Route path="/owner/business/:id/menu/items/:itemId/recipe" element={<OwnerRoute><RecipeForm /></OwnerRoute>} />
         <Route path="/owner/business/:id/stock/movements" element={<OwnerRoute><StockMovements /></OwnerRoute>} />
         <Route path="/owner/business/:id/purchase-orders" element={<OwnerRoute><PurchaseOrders /></OwnerRoute>} />
+        <Route path="/owner/business/:id/stock/cmv" element={<OwnerRoute><CMVReport /></OwnerRoute>} />
+        <Route path="/owner/business/:id/customers" element={<OwnerRoute><Customers /></OwnerRoute>} />
 
         {/* Staff */}
         <Route path="/staff/login" element={<StaffLogin />} />
@@ -93,7 +97,7 @@ export default function AppRouter() {
         <Route path="/kds/:businessId" element={<StaffRoute><KitchenDisplay /></StaffRoute>} />
 
         {/* Customer */}
-        <Route path="/order/:businessSlug/table/:tableNumber" element={<MenuReadOnly />} />
+        <Route path="/order/:businessSlug/table/:tableNumber" element={<MenuOrder />} />
         <Route path="/order/:businessSlug/counter" element={<MenuOrder />} />
         <Route path="/order/:businessSlug/cart" element={<Cart />} />
         <Route path="/order/:businessSlug/identify" element={<Identify />} />

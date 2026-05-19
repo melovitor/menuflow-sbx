@@ -8,6 +8,7 @@ import {
   IconTruck,
   IconAlertTriangle,
   IconChevronRight,
+  IconChartBar,
 } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
 import Spinner from '../../components/ui/Spinner'
@@ -288,6 +289,18 @@ export default function Ingredients() {
             <div className="flex items-center gap-2">
               <IconAdjustments size={15} />
               Histórico de movimentações
+            </div>
+            <IconChevronRight size={14} />
+          </button>
+          <button
+            type="button"
+            data-testid="btn-cmv-report"
+            onClick={() => navigate(`/owner/business/${businessId}/stock/cmv`)}
+            className="w-full flex items-center justify-between px-4 h-[42px] rounded-[10px] border border-[var(--border)] bg-[var(--bg-primary)] text-[13px] text-[var(--text-2)] hover:border-accent hover:text-accent transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <IconChartBar size={15} />
+              CMV e Custos
             </div>
             <IconChevronRight size={14} />
           </button>

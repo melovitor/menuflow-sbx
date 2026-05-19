@@ -3,8 +3,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import Dashboard from '../../pages/owner/Dashboard'
 
 let mockParams = { id: 'b1' }
+const mockNavigate = vi.fn()
 vi.mock('react-router-dom', () => ({
   useParams: () => mockParams,
+  useNavigate: () => mockNavigate,
 }))
 
 vi.mock('../../services/businessService', () => ({
@@ -14,6 +16,10 @@ vi.mock('../../services/businessService', () => ({
 
 vi.mock('../../services/orderService', () => ({
   fetchActiveOrders: vi.fn(),
+}))
+
+vi.mock('../../services/inventoryService', () => ({
+  fetchAlertIngredientsCount: vi.fn().mockResolvedValue(0),
 }))
 
 vi.mock('../../services/supabase', () => ({

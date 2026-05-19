@@ -4,7 +4,8 @@ import { IconArrowLeft, IconMoon, IconSun, IconTrash } from '@tabler/icons-react
 import LgpdFooter from '../../components/layout/LgpdFooter'
 import { useCartStore } from '../../stores/cartStore'
 import { getCustomerSession } from '../../utils/customerSession'
-import { createCounterOrder } from '../../services/orderService'
+import { createCounterOrder, createTableOrder } from '../../services/orderService'
+import { fetchTableByNumber } from '../../services/businessService'
 import { supabase } from '../../services/supabase'
 import { formatCurrency } from '../../utils/formatters'
 import { toggleTheme } from '../../utils/theme'
@@ -85,12 +86,26 @@ export default function Cart() {
         notes: item.notes || null,
       }))
 
-      await createCounterOrder({
-        businessId: biz.id,
-        customerId: session.customerId,
-        customerName: session.customerName,
-        items: orderItems,
-      })
+      const tableNumber = sessionStorage.getItem(`table_context_${businessSlug}`)
+
+      if (tableNumber) {
+        const table = await fetchTableByNumber(biz.id, Number(tableNumber))
+        if (!table) throw new Error('Mesa não encontrada')
+        await createTableOrder({
+          businessId: biz.id,
+          tableId: table.id,
+          customerId: session.customerId,
+          customerName: session.customerName,
+          items: orderItems,
+        })
+      } else {
+        await createCounterOrder({
+          businessId: biz.id,
+          customerId: session.customerId,
+          customerName: session.customerName,
+          items: orderItems,
+        })
+      }
 
       sessionStorage.setItem(`orders_placed_${businessSlug}`, '1')
       cart.clear()

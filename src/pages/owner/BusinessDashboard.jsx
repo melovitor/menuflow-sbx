@@ -8,6 +8,7 @@ import {
   IconReceipt,
   IconLink,
   IconPackage,
+  IconUsers,
 } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
 import Toggle from '../../components/ui/Toggle'
@@ -88,6 +89,15 @@ const NAV_ITEMS = [
     iconColor: '#7C3AED',
     iconBg: 'var(--accent-light)',
     testId: 'nav-stock',
+  },
+  {
+    key: 'customers',
+    label: 'Clientes',
+    description: 'Histórico de clientes',
+    icon: IconUsers,
+    iconColor: '#0EA5E9',
+    iconBg: 'var(--border)',
+    testId: 'nav-customers',
   },
 ]
 

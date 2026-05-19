@@ -139,7 +139,7 @@ function ItemCard({ item, qty, isDark, canOrder, onAdd, onRemove }) {
 }
 
 export default function MenuOrder() {
-  const { businessSlug } = useParams()
+  const { businessSlug, tableNumber } = useParams()
   const navigate = useNavigate()
   const [isDark, setIsDark] = useState(() => (localStorage.getItem('theme') || 'dark') === 'dark')
 
@@ -159,11 +159,21 @@ export default function MenuOrder() {
 
   const cart = useCartStore(businessSlug || '_')
 
+  // Save table context so Cart knows the source
+  useEffect(() => {
+    if (tableNumber) {
+      sessionStorage.setItem(`table_context_${businessSlug}`, tableNumber)
+    }
+  }, [businessSlug, tableNumber])
+
   // Session check + data load
   useEffect(() => {
     const s = getCustomerSession(businessSlug)
     if (!s) {
-      navigate(`/order/${businessSlug}/identify`, { replace: true })
+      const returnTo = tableNumber
+        ? `/order/${businessSlug}/table/${tableNumber}`
+        : `/order/${businessSlug}/counter`
+      navigate(`/order/${businessSlug}/identify`, { replace: true, state: { returnTo } })
       return
     }
     setSession(s)
