@@ -142,7 +142,11 @@ export default function BusinessDashboard() {
   }
 
   const handleNav = (key) => {
-    navigate(`/owner/business/${id}/${key}`)
+    if (key === 'access' && business?.slug) {
+      navigate(`/owner/business/${id}/${key}`, { state: { slug: business.slug } })
+    } else {
+      navigate(`/owner/business/${id}/${key}`)
+    }
   }
 
   if (loading) {

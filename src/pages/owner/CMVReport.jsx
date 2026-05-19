@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { IconChartBar, IconSearch } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
@@ -76,6 +76,9 @@ export default function CMVReport() {
       setLoading(false)
     }
   }, [businessId, period, customFrom, customTo])
+
+  // load on mount with default period
+  useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // auto-load when period changes (except custom)
   const handlePeriodChange = (val) => {

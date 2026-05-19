@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 import { IconCash, IconToolsKitchen2, IconCopy, IconExternalLink, IconCheck, IconDeviceTv } from '@tabler/icons-react'
 import { useState, useEffect } from 'react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
@@ -71,11 +71,14 @@ function LinkCard({ icon: Icon, iconColor, iconBg, title, description, url }) {
 
 export default function AccessLinks() {
   const { id } = useParams()
-  const [slug, setSlug] = useState(null)
+  const location = useLocation()
+  const [slug, setSlug] = useState(location.state?.slug || null)
 
   useEffect(() => {
-    fetchBusinessById(id).then((b) => setSlug(b.slug)).catch(() => {})
-  }, [id])
+    if (!slug) {
+      fetchBusinessById(id).then((b) => setSlug(b.slug)).catch(() => {})
+    }
+  }, [id, slug])
 
   const links = [
     {
