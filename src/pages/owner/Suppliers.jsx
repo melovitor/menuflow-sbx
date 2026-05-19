@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { IconTruck, IconPlus, IconPencil } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
@@ -14,6 +14,7 @@ import {
   fetchIngredientCountsBySupplier,
 } from '../../services/inventoryService'
 import { formatPhone } from '../../utils/formatters'
+import { supabase } from '../../services/supabase'
 
 const inputCls =
   'w-full h-[40px] px-3 rounded-input text-[13px] text-[var(--text)] bg-[var(--bg-primary)] outline-none transition-colors border border-[var(--border-strong)] focus:border-accent'
@@ -33,7 +34,7 @@ export default function Suppliers() {
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const [data, counts] = await Promise.all([
         fetchSuppliers(businessId),
@@ -46,9 +47,17 @@ export default function Suppliers() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [businessId])
 
-  useEffect(() => { load() }, [businessId])
+  useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`suppliers-${businessId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'suppliers', filter: `business_id=eq.${businessId}` }, () => load())
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [businessId, load])
 
   const openAdd = () => {
     setEditing(null)

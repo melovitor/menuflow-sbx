@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   IconPlus,
@@ -28,6 +28,7 @@ import {
   fetchIngredients,
   fetchSuppliers,
 } from '../../services/inventoryService'
+import { supabase } from '../../services/supabase'
 import { formatCurrency } from '../../utils/formatters'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -257,7 +258,7 @@ export default function PurchaseOrders() {
   const [checkedItems, setCheckedItems] = useState({}) // key: ingredientId
   const [concluding, setConcluding] = useState(false)
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const [pos, ings, sups] = await Promise.all([
         fetchPurchaseOrders(businessId),
@@ -272,9 +273,17 @@ export default function PurchaseOrders() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [businessId])
 
-  useEffect(() => { load() }, [businessId])
+  useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`purchase-orders-${businessId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'purchase_orders', filter: `business_id=eq.${businessId}` }, () => load())
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [businessId, load])
 
   // ── auto-generate ──────────────────────────────────────────────
   const handleAutoGenerate = async () => {

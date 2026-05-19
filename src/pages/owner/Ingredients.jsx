@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   IconPackage,
@@ -22,6 +22,7 @@ import {
   updateIngredient,
   adjustIngredientStock,
 } from '../../services/inventoryService'
+import { supabase } from '../../services/supabase'
 import { formatCurrency } from '../../utils/formatters'
 
 const UNITS = ['un', 'kg', 'g', 'l', 'ml']
@@ -72,7 +73,7 @@ export default function Ingredients() {
   const [adjust, setAdjust] = useState(EMPTY_ADJUST)
   const [adjustSaving, setAdjustSaving] = useState(false)
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const [ings, sups] = await Promise.all([
         fetchIngredients(businessId),
@@ -85,9 +86,17 @@ export default function Ingredients() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [businessId])
 
-  useEffect(() => { load() }, [businessId])
+  useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`ingredients-${businessId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ingredients', filter: `business_id=eq.${businessId}` }, () => load())
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [businessId, load])
 
   const filtered = ingredients.filter((ing) => {
     if (filter === 'alert') return ing.current_stock <= ing.min_stock

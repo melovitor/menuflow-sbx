@@ -5,6 +5,7 @@ import OwnerLayout from '../../components/layout/OwnerLayout'
 import Spinner from '../../components/ui/Spinner'
 import { toast } from '../../components/ui/Toast'
 import { fetchStockMovements, fetchIngredients } from '../../services/inventoryService'
+import { supabase } from '../../services/supabase'
 import { formatCurrency } from '../../utils/formatters'
 
 const TYPE_CONFIG = {
@@ -117,6 +118,14 @@ export default function StockMovements() {
   }, [businessId])
 
   useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`stock-movements-${businessId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stock_movements', filter: `business_id=eq.${businessId}` }, () => load())
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [businessId, load])
 
   const handleSearch = () => {
     if (period === 'custom' && (!customFrom || !customTo)) return

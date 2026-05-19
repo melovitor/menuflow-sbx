@@ -5,6 +5,7 @@ import OwnerLayout from '../../components/layout/OwnerLayout'
 import Spinner from '../../components/ui/Spinner'
 import { fetchBusinessOrders } from '../../services/orderService'
 import { fetchBusinessById } from '../../services/businessService'
+import { supabase } from '../../services/supabase'
 import { formatCurrency, formatDate, formatDuration, formatPhone } from '../../utils/formatters'
 
 const STATUS_CONFIG = {
@@ -117,6 +118,14 @@ export default function OrdersList() {
   }, [id, filters])
 
   useEffect(() => { loadOrders() }, [loadOrders])
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`orders-list-${id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `business_id=eq.${id}` }, () => loadOrders())
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [id, loadOrders])
 
   const displayed = search
     ? orders.filter(o => o.order_number.toLowerCase().includes(search.toLowerCase()))

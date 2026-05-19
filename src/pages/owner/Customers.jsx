@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { IconUsers, IconSearch, IconPhone, IconAddressBook } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
@@ -53,49 +53,56 @@ export default function Customers() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        // Fetch customers + aggregate order stats in one query
-        const { data, error } = await supabase
-          .from('customers')
-          .select(`
-            id, name, phone, created_at,
-            orders!orders_customer_id_fkey(
-              id, status, created_at,
-              order_items(unit_price, quantity)
-            )
-          `)
-          .eq('business_id', businessId)
-          .order('created_at', { ascending: false })
-
-        if (error) throw error
-
-        const enriched = (data || []).map((c) => {
-          const closedOrders = (c.orders || []).filter((o) => o.status === 'closed')
-          const totalSpent = closedOrders.reduce((sum, o) =>
-            sum + (o.order_items || []).reduce((s, i) => s + i.unit_price * i.quantity, 0), 0
+  const load = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('customers')
+        .select(`
+          id, name, phone, created_at,
+          orders!orders_customer_id_fkey(
+            id, status, created_at,
+            order_items(unit_price, quantity)
           )
-          const lastOrder = (c.orders || [])
-            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
+        `)
+        .eq('business_id', businessId)
+        .order('created_at', { ascending: false })
 
-          return {
-            ...c,
-            orderCount: (c.orders || []).filter((o) => o.status !== 'cancelled').length,
-            totalSpent,
-            lastOrderAt: lastOrder?.created_at || null,
-          }
-        })
+      if (error) throw error
 
-        setCustomers(enriched)
-      } catch {
-        // silently fail — non-critical screen
-      } finally {
-        setLoading(false)
-      }
+      const enriched = (data || []).map((c) => {
+        const closedOrders = (c.orders || []).filter((o) => o.status === 'closed')
+        const totalSpent = closedOrders.reduce((sum, o) =>
+          sum + (o.order_items || []).reduce((s, i) => s + i.unit_price * i.quantity, 0), 0
+        )
+        const lastOrder = (c.orders || [])
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
+
+        return {
+          ...c,
+          orderCount: (c.orders || []).filter((o) => o.status !== 'cancelled').length,
+          totalSpent,
+          lastOrderAt: lastOrder?.created_at || null,
+        }
+      })
+
+      setCustomers(enriched)
+    } catch {
+      // silently fail — non-critical screen
+    } finally {
+      setLoading(false)
     }
-    load()
   }, [businessId])
+
+  useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`customers-${businessId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customers', filter: `business_id=eq.${businessId}` }, () => load())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `business_id=eq.${businessId}` }, () => load())
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [businessId, load])
 
   const filtered = customers.filter((c) => {
     if (!search) return true
