@@ -97,7 +97,7 @@ export default function AppRouter() {
         <Route path="/kds/:businessId" element={<StaffRoute><KitchenDisplay /></StaffRoute>} />
 
         {/* Customer */}
-        <Route path="/order/:businessSlug/table/:tableNumber" element={<MenuOrder />} />
+        <Route path="/order/:businessSlug/table/:tableNumber" element={<MenuReadOnly />} />
         <Route path="/order/:businessSlug/counter" element={<MenuOrder />} />
         <Route path="/order/:businessSlug/cart" element={<Cart />} />
         <Route path="/order/:businessSlug/identify" element={<Identify />} />
