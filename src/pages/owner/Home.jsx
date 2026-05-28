@@ -1,141 +1,37 @@
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IconPlus, IconChevronRight, IconBuildingStore } from '@tabler/icons-react'
+import { IconPlus, IconBuildingStore } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
-import Toggle from '../../components/ui/Toggle'
 import Spinner from '../../components/ui/Spinner'
-import Badge from '../../components/ui/Badge'
+import BusinessCard from '../../components/owner/BusinessCard'
+import HomeKpis from '../../components/owner/HomeKpis'
 import { useMyBusinesses } from '../../hooks/useBusiness'
-import { toast } from '../../components/ui/Toast'
-import { formatCurrency } from '../../utils/formatters'
 
-const CATEGORY_LABELS = {
-  bar: 'Bar',
-  restaurant: 'Restaurante',
-  snack_bar: 'Lanchonete',
-  cafeteria: 'Cafeteria',
-  other: 'Outro',
-}
+const FILTERS = [
+  ['todos', 'Todos'],
+  ['abertos', 'Abertos'],
+  ['fechados', 'Fechados'],
+]
 
-const getInitials = (name = '') => {
-  const words = name.trim().split(/\s+/).filter((w) => w.length > 0)
-  if (!words.length) return ''
-  if (words.length === 1) return words[0][0]?.toUpperCase() ?? ''
-  return (words[0][0]?.toUpperCase() ?? '') + (words[words.length - 1][0]?.toUpperCase() ?? '')
-}
-
-function BusinessCard({ business, metrics, onToggleOpen, onNavigate }) {
-  const m = metrics || { activeOrders: 0, occupiedTables: 0, revenue: 0 }
-  const initials = getInitials(business.name)
-
-  const handleToggle = async (e) => {
-    e.stopPropagation()
-    const wasAuto = business.schedule_enabled
-    try {
-      await onToggleOpen(business.id, business.is_open)
-      if (wasAuto) {
-        toast.success(
-          business.is_open
-            ? 'Fechado manualmente — horário automático desativado'
-            : 'Aberto manualmente — horário automático desativado'
-        )
-      } else {
-        toast.success(business.is_open ? 'Estabelecimento fechado' : 'Estabelecimento aberto')
-      }
-    } catch {
-      toast.error('Falha ao atualizar status. Tente novamente.')
-    }
-  }
-
+function FilterPills({ value, onChange, counts }) {
   return (
-    <div
-      data-testid={`business-card-${business.id}`}
-      onClick={() => onNavigate(business.id)}
-      className="bg-[var(--bg-primary)] border border-[var(--border)] rounded-card p-[14px] cursor-pointer hover:border-[var(--border-strong)] transition-colors duration-150"
-    >
-      {/* Header row */}
-      <div className="flex items-center gap-3 mb-4">
-
-        {/* Logo / initials */}
-        {business.logo_url ? (
-          <img
-            src={business.logo_url}
-            alt={business.name}
-            className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-[var(--border)]"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white text-[13px] font-medium flex-shrink-0">
-            {initials}
-          </div>
-        )}
-
-        {/* Name + category */}
-        <div className="flex-1 min-w-0">
-          <p className="text-[15px] font-medium text-[var(--text)] tracking-[-0.2px] truncate">
-            {business.name}
-          </p>
-          <p className="text-[11px] text-[var(--text-3)] mt-[1px]">
-            {CATEGORY_LABELS[business.category] ?? business.category}
-            {business.address_city && (
-              <> · {business.address_city}{business.address_state ? `, ${business.address_state}` : ''}</>
-            )}
-          </p>
-        </div>
-
-        {/* is_open toggle + chevron */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <div onClick={handleToggle} data-testid={`toggle-open-${business.id}`}>
-            <Toggle checked={business.is_open} onChange={() => {}} />
-          </div>
-          <IconChevronRight size={16} className="text-[var(--text-3)]" />
-        </div>
-      </div>
-
-      {/* Status badge */}
-      <div className="mb-4 flex items-center gap-2 flex-wrap">
-        <Badge variant={business.is_open ? 'open' : 'closed'} data-testid={`badge-status-${business.id}`}>
-          {business.is_open ? 'Aberto' : 'Fechado'}
-        </Badge>
-        {business.schedule_enabled && (
-          <span
-            data-testid={`badge-auto-${business.id}`}
-            className="text-[10px] font-medium text-[var(--text-3)] px-2 py-[3px] rounded-pill border border-[var(--border)] bg-[var(--bg-tertiary)]"
+    <div className="inline-flex bg-[var(--bg-primary)] border border-[var(--border)] rounded-pill p-1">
+      {FILTERS.map(([id, label]) => {
+        const active = id === value
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onChange(id)}
+            className={`px-3.5 py-1.5 rounded-pill text-[12.5px] font-medium transition-colors duration-150
+              ${active
+                ? 'bg-[var(--bg-tertiary)] text-[var(--text)] shadow-[inset_0_0_0_1px_var(--border-strong)]'
+                : 'text-[var(--text-2)] hover:text-[var(--text)]'}`}
           >
-            Horário automático
-          </span>
-        )}
-      </div>
-
-      {/* Metrics */}
-      <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[var(--border)]">
-
-        <div data-testid={`metric-orders-${business.id}`}>
-          <p className="text-[18px] font-medium text-[var(--text)] tracking-[-0.5px] leading-none">
-            {m.activeOrders}
-          </p>
-          <p className="text-[10px] text-[var(--text-3)] uppercase tracking-[.06em] mt-[4px] leading-tight">
-            Pedidos<br />ativos
-          </p>
-        </div>
-
-        <div data-testid={`metric-tables-${business.id}`}>
-          <p className="text-[18px] font-medium text-[var(--text)] tracking-[-0.5px] leading-none">
-            {m.occupiedTables}
-          </p>
-          <p className="text-[10px] text-[var(--text-3)] uppercase tracking-[.06em] mt-[4px] leading-tight">
-            Mesas<br />ocupadas
-          </p>
-        </div>
-
-        <div data-testid={`metric-revenue-${business.id}`}>
-          <p className="text-[15px] font-medium text-[var(--text)] tracking-[-0.3px] leading-none">
-            {formatCurrency(m.revenue)}
-          </p>
-          <p className="text-[10px] text-[var(--text-3)] uppercase tracking-[.06em] mt-[4px] leading-tight">
-            Faturado<br />hoje
-          </p>
-        </div>
-
-      </div>
+            {label} <span className="font-mono-ui text-[11px] text-[var(--text-3)]">· {counts[id]}</span>
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -143,24 +39,38 @@ function BusinessCard({ business, metrics, onToggleOpen, onNavigate }) {
 export default function Home() {
   const navigate = useNavigate()
   const { businesses, metrics, loading, error, toggleIsOpen } = useMyBusinesses()
+  const [filter, setFilter] = useState('todos')
 
-  const handleNavigate = (businessId) => {
-    navigate(`/owner/business/${businessId}`)
-  }
+  const handleNavigate = (businessId) => navigate(`/owner/business/${businessId}`)
+
+  const counts = useMemo(() => ({
+    todos: businesses.length,
+    abertos: businesses.filter((b) => b.is_open).length,
+    fechados: businesses.filter((b) => !b.is_open).length,
+  }), [businesses])
+
+  const visible = useMemo(() => {
+    if (filter === 'abertos') return businesses.filter((b) => b.is_open)
+    if (filter === 'fechados') return businesses.filter((b) => !b.is_open)
+    return businesses
+  }, [businesses, filter])
+
+  const openCount = counts.abertos
 
   return (
     <OwnerLayout>
-      <div className="px-5 py-5">
+      <div className="w-full max-w-[1240px] mx-auto px-5 py-5 lg:px-8 lg:py-8 flex flex-col gap-5 lg:gap-7">
 
-        {/* Section header */}
-        <div className="flex items-center justify-between mb-4">
+        {/* Hero / section header */}
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <h1 className="text-[18px] font-medium text-[var(--text)] tracking-[-0.3px]">
+            <h1 className="text-[20px] lg:text-[28px] font-semibold text-[var(--text)] tracking-title leading-tight">
               Meus estabelecimentos
             </h1>
             {!loading && businesses.length > 0 && (
-              <p className="text-[12px] text-[var(--text-3)] mt-[2px]">
+              <p className="text-[12px] lg:text-[14px] text-[var(--text-3)] mt-1">
                 {businesses.length} {businesses.length === 1 ? 'estabelecimento' : 'estabelecimentos'}
+                {openCount > 0 && <> · {openCount} {openCount === 1 ? 'aberto' : 'abertos'} agora</>}
               </p>
             )}
           </div>
@@ -168,49 +78,66 @@ export default function Home() {
             type="button"
             data-testid="btn-new-business"
             onClick={() => navigate('/owner/business/new')}
-            className="flex items-center gap-[6px] px-3 py-2 text-[13px] font-medium text-accent
-              border border-[var(--border-strong)] rounded-[10px] bg-[var(--bg-primary)]
-              hover:border-accent transition-colors duration-150"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold text-[var(--accent-text)]
+              border border-[var(--border-strong)] rounded-button bg-[var(--bg-primary)]
+              hover:border-accent transition-colors duration-150 flex-shrink-0"
           >
             <IconPlus size={15} />
-            Novo
+            <span className="hidden sm:inline">Novo estabelecimento</span>
+            <span className="sm:hidden">Novo</span>
           </button>
         </div>
 
+        {/* KPIs agregados (desktop) */}
+        {!loading && !error && businesses.length > 0 && (
+          <HomeKpis businesses={businesses} metrics={metrics} />
+        )}
+
+        {/* Filtro */}
+        {!loading && !error && businesses.length > 0 && (
+          <div className="flex items-center justify-between">
+            <FilterPills value={filter} onChange={setFilter} counts={counts} />
+          </div>
+        )}
+
         {/* Loading */}
         {loading && (
-          <div data-testid="loading-state" className="flex justify-center py-16">
+          <div data-testid="loading-state" className="flex justify-center py-20">
             <Spinner size="lg" />
           </div>
         )}
 
         {/* Error */}
         {!loading && error && (
-          <div data-testid="error-state" className="text-center py-16">
-            <p className="text-[13px] text-[var(--text-2)] mb-1">
+          <div data-testid="error-state" className="text-center py-20">
+            <p className="text-[14px] text-[var(--text-2)] mb-1">
               Não foi possível carregar seus estabelecimentos.
             </p>
-            <p className="text-[12px] text-[var(--text-3)]">Verifique sua conexão e recarregue a página.</p>
+            <p className="text-[13px] text-[var(--text-3)]">Verifique sua conexão e recarregue a página.</p>
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Empty */}
         {!loading && !error && businesses.length === 0 && (
-          <div data-testid="empty-state" className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-14 h-14 rounded-full bg-[var(--accent-light)] border border-accent flex items-center justify-center mb-4">
-              <IconBuildingStore size={24} className="text-accent dark:text-[var(--accent-text)]" />
+          <div data-testid="empty-state" className="flex flex-col items-center justify-center py-20 text-center">
+            <div
+              className="w-16 h-16 rounded-full bg-[var(--accent-light)] border border-accent flex items-center justify-center mb-5"
+              style={{ boxShadow: '0 0 28px -8px var(--glow-2)' }}
+            >
+              <IconBuildingStore size={26} className="text-[var(--accent-text)]" />
             </div>
-            <h2 className="text-[15px] font-medium text-[var(--text)] mb-2">
+            <h2 className="text-[16px] font-semibold text-[var(--text)] mb-2">
               Nenhum estabelecimento ainda
             </h2>
-            <p className="text-[13px] text-[var(--text-2)] mb-6 max-w-[240px]">
-              Cadastre seu bar ou restaurante e comece a operar agora
+            <p className="text-[13.5px] text-[var(--text-2)] mb-6 max-w-[260px]">
+              Cadastre seu bar ou restaurante e comece a operar agora.
             </p>
             <button
               type="button"
               data-testid="btn-new-business-empty"
               onClick={() => navigate('/owner/business/new')}
-              className="flex items-center gap-2 px-5 py-3 text-[14px] font-medium text-white bg-accent rounded-[10px] hover:bg-accent/90 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-3 text-[14px] font-semibold rounded-button glow-brass glow-brass-hover transition-all"
+              style={{ background: 'var(--accent)', color: 'var(--accent-contrast)' }}
             >
               <IconPlus size={16} />
               Criar estabelecimento
@@ -218,10 +145,10 @@ export default function Home() {
           </div>
         )}
 
-        {/* Business list */}
+        {/* Lista / grid */}
         {!loading && !error && businesses.length > 0 && (
-          <div data-testid="business-list" className="flex flex-col gap-3">
-            {businesses.map((b) => (
+          <div data-testid="business-list" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4">
+            {visible.map((b) => (
               <BusinessCard
                 key={b.id}
                 business={b}
@@ -231,18 +158,20 @@ export default function Home() {
               />
             ))}
 
-            {/* Add new — dashed card */}
-            <button
-              type="button"
-              data-testid="btn-new-business-list"
-              onClick={() => navigate('/owner/business/new')}
-              className="w-full flex items-center justify-center gap-2 p-4 text-[13px] font-medium text-[var(--text-2)]
-                border border-dashed border-[var(--border-strong)] rounded-card bg-[var(--bg-primary)]
-                hover:border-accent hover:text-accent transition-colors duration-150"
-            >
-              <IconPlus size={15} />
-              Novo estabelecimento
-            </button>
+            {/* Adicionar — card tracejado (somente sem filtro) */}
+            {filter === 'todos' && (
+              <button
+                type="button"
+                data-testid="btn-new-business-list"
+                onClick={() => navigate('/owner/business/new')}
+                className="w-full min-h-[120px] flex items-center justify-center gap-2 p-4 text-[13px] font-medium text-[var(--text-2)]
+                  border border-dashed border-[var(--border-strong)] rounded-card bg-transparent
+                  hover:border-accent hover:text-[var(--accent-text)] transition-colors duration-150"
+              >
+                <IconPlus size={15} />
+                Novo estabelecimento
+              </button>
+            )}
           </div>
         )}
 
