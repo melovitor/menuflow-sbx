@@ -1,6 +1,6 @@
 // Barra de 4 segmentos + rótulo. Só aparece quando há senha digitada.
 
-import { passwordScore, STRENGTH_LABELS, STRENGTH_VARS } from './passwordStrength'
+import { passwordScore, STRENGTH_LABELS, STRENGTH_VARS } from './strengthScore'
 
 export default function PasswordStrength({ value = '', 'data-testid': testId }) {
   const level = passwordScore(value)
