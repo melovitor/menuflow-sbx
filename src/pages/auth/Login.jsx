@@ -1,27 +1,18 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { IconEye, IconEyeOff, IconMoon, IconSun } from '@tabler/icons-react'
+import { IconAlertTriangle } from '@tabler/icons-react'
 import { signIn } from '../../services/authService'
-import { toggleTheme } from '../../utils/theme'
 import Button from '../../components/ui/Button'
-import Input from '../../components/ui/Input'
-import LgpdFooter from '../../components/layout/LgpdFooter'
+import AuthShell from '../../components/auth/AuthShell'
+import TextInput from '../../components/auth/TextInput'
+import PasswordInput from '../../components/auth/PasswordInput'
 
 export default function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [isDark, setIsDark] = useState(
-    () => (localStorage.getItem('theme') || 'dark') === 'dark'
-  )
-
-  const handleToggleTheme = () => {
-    const next = toggleTheme()
-    setIsDark(next === 'dark')
-  }
 
   const handleSignIn = async () => {
     if (!email.trim() || !password) {
@@ -45,123 +36,72 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-secondary)] flex flex-col">
-
-      {/* Header */}
-      <header className="h-[52px] px-5 flex items-center justify-between bg-[var(--bg-primary)] border-b border-[var(--border)]">
-        <span className="text-[15px] font-medium text-[var(--text)] tracking-[-0.2px]">
-          Menu<span className="text-accent">Flow</span>
-        </span>
-        <button
-          type="button"
-          data-testid="theme-toggle"
-          onClick={handleToggleTheme}
-          className="w-[32px] h-[32px] rounded-full border border-[var(--border-strong)] bg-[var(--bg-primary)] flex items-center justify-center text-[var(--text-2)] hover:text-[var(--text)] transition-colors duration-150"
-        >
-          {isDark ? <IconMoon size={15} /> : <IconSun size={15} />}
-        </button>
-      </header>
-
-      {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-5 py-10">
-        <div className="w-full max-w-[360px]">
-
-          {/* Page title */}
-          <div className="mb-7">
-            <h1 className="text-[20px] font-medium text-[var(--text)] tracking-[-0.5px] mb-[5px]">
-              Bem-vindo de volta
-            </h1>
-            <p className="text-[13px] text-[var(--text-2)]">
-              Entre para gerenciar seus estabelecimentos
-            </p>
-          </div>
-
-          {/* Form */}
-          <div className="flex flex-col gap-4">
-
-            <Input
-              label="E-mail"
-              type="email"
-              placeholder="seu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={handleKeyDown}
-              autoComplete="email"
-              data-testid="input-email"
-            />
-
-            {/* Password with eye toggle */}
-            <div className="flex flex-col gap-[5px]">
-              <label className="text-[11px] font-medium text-[var(--text-2)] uppercase tracking-[.06em]">
-                Senha
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  autoComplete="current-password"
-                  data-testid="input-password"
-                  className="w-full h-10 px-3 pr-10 text-[13px] text-[var(--text)]
-                    bg-[var(--bg-primary)] border border-[var(--border-strong)] rounded-input
-                    outline-none transition-colors duration-150
-                    focus:border-accent placeholder:text-[var(--text-3)]"
-                />
-                <button
-                  type="button"
-                  data-testid="toggle-password"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors"
-                >
-                  {showPassword ? <IconEyeOff size={15} /> : <IconEye size={15} />}
-                </button>
-              </div>
-              <div className="flex justify-end">
-                <Link
-                  to="/forgot-password"
-                  data-testid="link-forgot-password"
-                  className="text-[11px] text-accent hover:underline"
-                >
-                  Esqueci minha senha
-                </Link>
-              </div>
-            </div>
-
-            {/* Error message */}
-            {error && (
-              <p data-testid="error-message" className="text-[12px] text-red-500 -mt-1">
-                {error}
-              </p>
-            )}
-
-            <Button
-              fullWidth
-              loading={loading}
-              onClick={handleSignIn}
-              data-testid="btn-signin"
-            >
-              Entrar
-            </Button>
-
-          </div>
-
-          {/* Register link */}
-          <p className="text-center text-[13px] text-[var(--text-2)] mt-8">
-            Não tem conta?{' '}
-            <Link
-              to="/register"
-              data-testid="link-register"
-              className="text-accent hover:underline"
-            >
-              Cadastre-se
-            </Link>
-          </p>
-
-        </div>
+    <AuthShell>
+      <div className="mb-7">
+        <h1 className="text-[24px] font-semibold text-[var(--text)] tracking-title leading-tight mb-1.5">
+          Bem-vindo de volta
+        </h1>
+        <p className="text-[14px] text-[var(--text-2)]">
+          Entre para gerenciar seus estabelecimentos.
+        </p>
       </div>
-      <LgpdFooter />
-    </div>
+
+      <div className="flex flex-col gap-4">
+        <TextInput
+          label="E-mail"
+          type="email"
+          placeholder="seu@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={handleKeyDown}
+          autoComplete="email"
+          inputMode="email"
+          data-testid="input-email"
+        />
+
+        <div className="flex flex-col gap-2">
+          <PasswordInput
+            label="Senha"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={handleKeyDown}
+            autoComplete="current-password"
+            data-testid="input-password"
+            data-testid-toggle="toggle-password"
+          />
+          <div className="flex justify-end">
+            <Link
+              to="/forgot-password"
+              data-testid="link-forgot-password"
+              className="text-[12px] text-[var(--accent-text)] hover:underline"
+            >
+              Esqueci minha senha
+            </Link>
+          </div>
+        </div>
+
+        {error && (
+          <div
+            data-testid="error-message"
+            className="flex items-center gap-2 px-3 py-2.5 rounded-[8px] bg-[var(--red-bg)] border border-[var(--red-border)]"
+          >
+            <IconAlertTriangle size={15} className="text-[var(--red-text)] shrink-0" />
+            <span className="text-[12.5px] text-[var(--red-text)] leading-snug">{error}</span>
+          </div>
+        )}
+
+        <Button fullWidth size="lg" loading={loading} onClick={handleSignIn} data-testid="btn-signin">
+          Entrar
+        </Button>
+      </div>
+
+      <p className="text-center text-[13px] text-[var(--text-2)] mt-7">
+        Não tem conta?{' '}
+        <Link to="/register" data-testid="link-register" className="text-[var(--accent-text)] font-medium hover:underline">
+          Cadastre-se
+        </Link>
+      </p>
+    </AuthShell>
   )
 }

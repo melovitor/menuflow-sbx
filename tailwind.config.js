@@ -1,3 +1,4 @@
+/** @type {import('tailwindcss').Config} */
 export default {
   future: {
     hoverOnlyWhenSupported: true,
@@ -6,20 +7,27 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['Geist Mono', 'ui-monospace', 'monospace'],
+      },
       colors: {
         accent: {
-          DEFAULT: '#7C3AED',
-          light: '#EDE9FE',
-          text: '#5B21B6',
-          dark: '#A78BFA',
-          'dark-bg': '#1A1030',
+          DEFAULT: '#D4A258',
+          strong: '#B7842F',
+          light: '#F5E9D2',
+          text: '#6B4818',
+          dark: '#E8C285',
+          'dark-bg': '#2A2014',
+          contrast: '#1A140C',
         },
       },
       borderRadius: {
-        card: '14px',
-        section: '12px',
-        input: '10px',
-        pill: '20px',
+        card: '12px',
+        section: '10px',
+        input: '9px',
+        button: '9px',
+        pill: '999px',
       },
     },
   },

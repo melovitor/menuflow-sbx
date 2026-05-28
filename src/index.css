@@ -2,94 +2,101 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ──────────────────────────────────────────────────────────────────────────
+   MenuFlow · Noir Veludo
+   Tema premium escuro por padrão, com light mode completo.
+   Acento: latão (brass) · neutros quentes (carvão / papel).
+   Troca de tema: classe `.dark` no <html> (ver src/utils/theme.js).
+   ────────────────────────────────────────────────────────────────────────── */
+
 @layer base {
+  /* ── LIGHT MODE (papel quente) ── */
   :root {
-    --bg-primary: #FFFFFF;
-    --bg-secondary: #F8F8F8;
-    --bg-tertiary: #F1F1F1;
-    --border: #E2E2E2;
-    --border-strong: #C8C8C8;
-    --text: #111111;
-    --text-2: #555555;
-    --text-3: #999999;
-    --accent: #7C3AED;
-    --accent-light: #EDE9FE;
-    --accent-text: #5B21B6;
-    --green-bg: #ECFDF5;
-    --green-text: #065F46;
-    --green-border: #A7F3D0;
-    --amber-bg: #FFFBEB;
-    --amber-text: #92400E;
-    --amber-border: #FDE68A;
-    --red-bg: #FEF2F2;
-    --red-text: #991B1B;
-    --red-border: #FECACA;
-    --table-free-bg: #EAF3DE;
-    --table-free-border: #C0DD97;
-    --table-free-text: #3B6D11;
-    --table-occupied-bg: #EDE9FE;
-    --table-occupied-border: #AFA9EC;
-    --table-occupied-text: #3C3489;
-    --table-waiting-bg: #FAEEDA;
-    --table-waiting-border: #F0997B;
-    --table-waiting-text: #712B13;
+    --bg-primary: #FBF8F1;
+    --bg-secondary: #F4EFE4;
+    --bg-tertiary: #ECE5D5;
+    --border: #DDD4BD;
+    --border-strong: #C5BAA1;
+    --text: #1A170F;
+    --text-2: #5A5345;
+    --text-3: #8F8775;
+
+    /* Acento — latão. Em light usamos um latão mais escuro p/ contraste de texto. */
+    --accent: #D4A258;          /* preenchimento de botões/toggles (consistente nos 2 modos) */
+    --accent-strong: #B7842F;   /* latão escuro p/ hover/realces em superfícies claras */
+    --accent-light: #F5E9D2;    /* chip/realce suave */
+    --accent-text: #6B4818;     /* texto/links de acento (alto contraste no claro) */
+    --accent-contrast: #1A140C; /* texto SOBRE o preenchimento latão */
+
+    /* Glow do latão (sutil) */
+    --glow-1: rgba(183, 132, 47, 0.22);
+    --glow-2: rgba(183, 132, 47, 0.45);
+    --glow-ring: rgba(183, 132, 47, 0.14);
+
+    /* Semânticas */
+    --green-bg: #E4EFD8;  --green-text: #3E7A2F;  --green-border: #BCD6A8;
+    --amber-bg: #FAEED0;  --amber-text: #A86A12;  --amber-border: #ECCF8C;
+    --red-bg: #FAE0DA;    --red-text: #A03B33;    --red-border: #ECC0B6;
+
+    /* Status de pedido */
+    --status-new-bg: #F5E9D2;     --status-new-text: #8B6022;
+    --status-preparing-bg: #FAE0DA; --status-preparing-text: #A03B33;
+    --status-ready-bg: #E4EFD8;   --status-ready-text: #3E7A2F;
+
+    /* Mesas (PDV/KDS) */
+    --table-free-bg: #E4EFD8;     --table-free-border: #BCD6A8;  --table-free-text: #3E7A2F;
+    --table-occupied-bg: #F5E9D2; --table-occupied-border: #E0C99B; --table-occupied-text: #8B6022;
+    --table-waiting-bg: #FAE0DA;  --table-waiting-border: #ECC0B6; --table-waiting-text: #A03B33;
   }
 
+  /* ── DARK MODE (carvão quente) — PADRÃO ── */
   .dark {
-    --bg-primary: #18181B;
-    --bg-secondary: #111113;
-    --bg-tertiary: #0A0A0C;
-    --border: #2A2A2E;
-    --border-strong: #3F3F46;
-    --text: #FAFAFA;
-    --text-2: #A1A1AA;
-    --text-3: #555558;
-    --accent: #7C3AED;
-    --accent-light: #1A1030;
-    --accent-text: #A78BFA;
-    --green-bg: #021510;
-    --green-text: #A7F3D0;
-    --green-border: #0D3320;
-    --amber-bg: #1A1200;
-    --amber-text: #FDE68A;
-    --amber-border: #3D2E00;
-    --red-bg: #1A0808;
-    --red-text: #FCA5A5;
-    --red-border: #3D1212;
-    --table-free-bg: #042918;
-    --table-free-border: #0D3320;
-    --table-free-text: #6EE7B7;
-    --table-occupied-bg: #1A1030;
-    --table-occupied-border: #3D2060;
-    --table-occupied-text: #A78BFA;
-    --table-waiting-bg: #1A0D00;
-    --table-waiting-border: #3D2200;
-    --table-waiting-text: #FDBA74;
+    --bg-primary: #0E0D0B;
+    --bg-secondary: #15130F;
+    --bg-tertiary: #1C1A14;
+    --border: #28241D;
+    --border-strong: #3A3429;
+    --text: #F3EDE0;
+    --text-2: #A39A87;
+    --text-3: #6E665A;
+
+    --accent: #D4A258;
+    --accent-strong: #E8C285;
+    --accent-light: #2A2014;
+    --accent-text: #E8C285;
+    --accent-contrast: #1A140C;
+
+    --glow-1: rgba(212, 162, 88, 0.22);
+    --glow-2: rgba(212, 162, 88, 0.55);
+    --glow-ring: rgba(212, 162, 88, 0.16);
+
+    --green-bg: #11200F;  --green-text: #7DB97B;  --green-border: #214D1E;
+    --amber-bg: #241A0C;  --amber-text: #E0A04D;  --amber-border: #3D2E12;
+    --red-bg: #241010;    --red-text: #E8A097;    --red-border: #4A1F1A;
+
+    --status-new-bg: #241A0C;     --status-new-text: #D4A258;
+    --status-preparing-bg: #241010; --status-preparing-text: #C9554B;
+    --status-ready-bg: #0F1F0E;   --status-ready-text: #7DB97B;
+
+    --table-free-bg: #0F1F0E;     --table-free-border: #214D1E;  --table-free-text: #7DB97B;
+    --table-occupied-bg: #2A2014; --table-occupied-border: #4A3A1E; --table-occupied-text: #E8C285;
+    --table-waiting-bg: #241A0C;  --table-waiting-border: #3D2E12; --table-waiting-text: #E0A04D;
   }
 
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
+  * { -webkit-tap-highlight-color: transparent; }
 
-  /* Prevent iOS Safari auto-zoom on input focus (requires font-size >= 16px) */
+  /* iOS Safari: evita auto-zoom no foco do input (precisa font-size >= 16px) */
   @media (max-width: 639px) {
-    input, select, textarea {
-      font-size: 16px !important;
-    }
+    input, select, textarea { font-size: 16px !important; }
   }
 
-  html {
-    background-color: #18181B;
-  }
-
-  html:not(.dark) {
-    background-color: #F8F8F8;
-  }
+  html { background-color: #0E0D0B; }
+  html:not(.dark) { background-color: #F4EFE4; }
 
   body {
     background-color: inherit;
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     padding-bottom: env(safe-area-inset-bottom);
@@ -97,33 +104,56 @@
     padding-right: env(safe-area-inset-right);
   }
 
-  #root {
-    min-height: 100dvh;
-  }
+  #root { min-height: 100dvh; }
 }
 
 @layer utilities {
-  .tracking-ui {
-    letter-spacing: -0.2px;
+  .tracking-ui { letter-spacing: -0.01em; }
+  .tracking-title { letter-spacing: -0.02em; }
+  .font-mono-ui { font-family: 'Geist Mono', ui-monospace, monospace; }
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+  /* Glow sutil do latão para CTAs e elementos ativos */
+  .glow-brass {
+    box-shadow:
+      0 0 0 1px var(--glow-1),
+      0 6px 18px -8px var(--glow-2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.10);
   }
-  .tracking-title {
-    letter-spacing: -0.5px;
+  .glow-brass-hover:hover {
+    box-shadow:
+      0 0 0 1px var(--glow-2),
+      0 8px 22px -6px var(--glow-2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  }
+  /* Anel de foco do latão para campos */
+  .ring-brass:focus,
+  .ring-brass:focus-within {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--glow-ring);
   }
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+/* ── Keyframes ── */
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* Live pulse dot — halo expandindo, bem sutil */
+@keyframes mf-pulse {
+  0%   { box-shadow: 0 0 0 0 var(--pulse-c, var(--green-text)); }
+  70%  { box-shadow: 0 0 0 6px rgba(0, 0, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
 }
+@keyframes mf-caret { 50% { opacity: 0; } }
 
 @keyframes glow {
-  50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); }
+  50% { box-shadow: 0 0 0 4px rgba(212, 162, 88, 0.15); }
 }
 
-.animate-blink {
-  animation: blink 1.5s ease-in-out infinite;
-}
+.animate-blink { animation: blink 1.5s ease-in-out infinite; }
+.animate-glow  { animation: glow 2s ease-in-out infinite; }
+.mf-pulse { animation: mf-pulse 2.4s cubic-bezier(.4, 0, .6, 1) infinite; }
+.mf-caret { animation: mf-caret 1s steps(1) infinite; }
 
-.animate-glow {
-  animation: glow 2s ease-in-out infinite;
+@media (prefers-reduced-motion: reduce) {
+  .mf-pulse, .mf-caret, .animate-blink, .animate-spin, .animate-glow { animation: none !important; }
 }
