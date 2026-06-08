@@ -1,7 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IconPlus, IconBuildingStore } from '@tabler/icons-react'
+import { IconPlus, IconBuildingStore, IconDownload } from '@tabler/icons-react'
 import OwnerLayout from '../../components/layout/OwnerLayout'
+import { useAuthStore } from '../../stores/authStore'
+import { exportUserData } from '../../services/authService'
+import { toast } from '../../components/ui/Toast'
 import Spinner from '../../components/ui/Spinner'
 import BusinessCard from '../../components/owner/BusinessCard'
 import HomeKpis from '../../components/owner/HomeKpis'
@@ -36,10 +39,37 @@ function FilterPills({ value, onChange, counts }) {
   )
 }
 
+const DAYS   = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB']
+const MONTHS = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ']
+
+function formatNow() {
+  const n = new Date()
+  const time = n.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return `${DAYS[n.getDay()]} · ${String(n.getDate()).padStart(2, '0')} ${MONTHS[n.getMonth()]} ${n.getFullYear()} · ${time}`
+}
+
 export default function Home() {
   const navigate = useNavigate()
+  const { user } = useAuthStore()
   const { businesses, metrics, loading, error, toggleIsOpen } = useMyBusinesses()
   const [filter, setFilter] = useState('todos')
+  const [nowStr, setNowStr] = useState(formatNow)
+  const [exporting, setExporting] = useState(false)
+
+  useEffect(() => {
+    const t = setInterval(() => setNowStr(formatNow()), 60_000)
+    return () => clearInterval(t)
+  }, [])
+
+  const firstName = (user?.user_metadata?.name || user?.email || '').split(' ')[0]
+
+  const handleExport = async () => {
+    if (exporting) return
+    setExporting(true)
+    try { await exportUserData(user.id, user.email) }
+    catch { toast.error('Falha ao exportar dados.') }
+    finally { setExporting(false) }
+  }
 
   const handleNavigate = (businessId) => navigate(`/owner/business/${businessId}`)
 
@@ -61,12 +91,49 @@ export default function Home() {
     <OwnerLayout>
       <div className="w-full max-w-[1240px] mx-auto px-5 py-5 lg:px-8 lg:py-8 flex flex-col gap-5 lg:gap-7">
 
-        {/* Hero / section header */}
+        {/* Greeting — desktop only */}
+        <div className="hidden lg:flex items-end justify-between gap-4">
+          <div>
+            <p className="font-mono-ui text-[10px] text-[var(--text-3)] uppercase tracking-[.08em] mb-1.5">
+              {nowStr}
+            </p>
+            <h1 className="text-[30px] font-semibold text-[var(--text)] tracking-title leading-none">
+              Olá, {firstName || 'dono'}.
+            </h1>
+            <p className="text-[13.5px] text-[var(--text-2)] mt-2">
+              Resumo das últimas 24h em todos os seus estabelecimentos.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exporting}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-[12.5px] font-medium text-[var(--text-2)]
+                border border-[var(--border)] rounded-button bg-[var(--bg-primary)]
+                hover:border-[var(--border-strong)] disabled:opacity-50 transition-colors"
+            >
+              <IconDownload size={13} />
+              Exportar relatório
+            </button>
+            <button
+              type="button"
+              disabled
+              title="Em breve — v3"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-[12.5px] font-medium text-[var(--text-3)]
+                border border-[var(--border)] rounded-button opacity-40 cursor-not-allowed"
+            >
+              WhatsApp IA
+            </button>
+          </div>
+        </div>
+
+        {/* Section header */}
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h1 className="text-[20px] lg:text-[28px] font-semibold text-[var(--text)] tracking-title leading-tight">
+            <h2 className="text-[20px] lg:text-[18px] font-semibold text-[var(--text)] tracking-title leading-tight">
               Meus estabelecimentos
-            </h1>
+            </h2>
             {!loading && businesses.length > 0 && (
               <p className="text-[12px] lg:text-[14px] text-[var(--text-3)] mt-1">
                 {businesses.length} {businesses.length === 1 ? 'estabelecimento' : 'estabelecimentos'}

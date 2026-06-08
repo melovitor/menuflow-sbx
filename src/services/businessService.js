@@ -24,7 +24,7 @@ export const fetchBusinessById = async (businessId) => {
 export const fetchBusinessMetrics = async (businessId) => {
   const today = new Date().toLocaleDateString('sv') // "2026-05-08"
 
-  const [ordersRes, tablesRes, revenueOrdersRes, counterRes, bizRes] = await Promise.all([
+  const [ordersRes, tablesRes, revenueOrdersRes, counterRes, bizRes, totalTablesRes] = await Promise.all([
     supabase
       .from('orders')
       .select('id', { count: 'exact', head: true })
@@ -37,7 +37,7 @@ export const fetchBusinessMetrics = async (businessId) => {
       .neq('status', 'free'),
     supabase
       .from('orders')
-      .select('id, discount_percent, service_charge_accepted')
+      .select('id, discount_percent, service_charge_accepted, created_at')
       .eq('business_id', businessId)
       // 'closed' = table/staff fechados pelo checkout; 'delivered' = balcão finalizado pelo KDS
       .in('status', ['closed', 'delivered'])
@@ -53,10 +53,16 @@ export const fetchBusinessMetrics = async (businessId) => {
       .select('service_charge_percent')
       .eq('id', businessId)
       .single(),
+    supabase
+      .from('tables')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_id', businessId),
   ])
 
   const serviceChargePct = bizRes.data?.service_charge_percent || 0
   let revenue = 0
+  const hourlyRevenue = new Array(24).fill(0)
+
   if (revenueOrdersRes.data?.length) {
     const ids = revenueOrdersRes.data.map((o) => o.id)
     const { data: items } = await supabase
@@ -73,15 +79,33 @@ export const fetchBusinessMetrics = async (businessId) => {
       const sub = (itemsByOrder[order.id] || []).reduce((s, i) => s + i.unit_price * i.quantity, 0)
       const afterDiscount = sub - sub * (order.discount_percent || 0) / 100
       const serviceCharge = order.service_charge_accepted ? afterDiscount * serviceChargePct / 100 : 0
-      revenue += afterDiscount + serviceCharge
+      const orderRevenue = afterDiscount + serviceCharge
+      revenue += orderRevenue
+      // bucket into hour for sparkline
+      const hour = new Date(order.created_at).getHours()
+      hourlyRevenue[hour] += orderRevenue
     }
   }
 
+  const closedCount = revenueOrdersRes.data?.length || 0
+  const ticketAvg   = closedCount > 0 ? revenue / closedCount : 0
+
+  // Last 8 hours ending at current hour
+  const currentHour = new Date().getHours()
+  const sparklineData = []
+  for (let i = 7; i >= 0; i--) {
+    sparklineData.push(hourlyRevenue[(currentHour - i + 24) % 24])
+  }
+
   return {
-    activeOrders: ordersRes.count || 0,
+    activeOrders:   ordersRes.count || 0,
     occupiedTables: tablesRes.count || 0,
+    totalTables:    totalTablesRes.count || 0,
     revenue,
-    counterQueue: counterRes.count || 0,
+    closedCount,
+    ticketAvg,
+    counterQueue:   counterRes.count || 0,
+    sparklineData,
   }
 }
 
